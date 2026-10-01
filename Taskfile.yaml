@@ -1,0 +1,188 @@
+version: '3'
+
+vars:
+  GATEWAY_DIR: services/webhook-gateway
+  API_DIR: services/integration-api
+  WORKER_DIR: services/integration-worker
+  CORE_DIR: packages/python/accord-core
+  ADAPTERS_DIR: packages/python/accord-integrations
+  ETL_DIR: etl
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  # Local infrastructure
+
+  infra:validate:
+    desc: Validate Docker Compose configuration
+    cmds:
+      - docker compose config --quiet
+
+  infra:up:
+    desc: Start local infrastructure
+    deps: [infra:validate]
+    cmds:
+      - docker compose up -d
+
+  infra:down:
+    desc: Stop local infrastructure while preserving volumes
+    cmds:
+      - docker compose down
+
+  infra:status:
+    desc: Show container status
+    cmds:
+      - docker compose ps
+
+  infra:logs:
+    desc: Follow container logs (optionally pass a service after --)
+    cmds:
+      - docker compose logs --follow --tail=100 {{.CLI_ARGS}}
+
+  infra:build:
+    desc: Build application containers
+    deps: [infra:validate]
+    cmds:
+      - docker compose build {{.CLI_ARGS}}
+
+  # Python dependencies
+  # Each Python project manages its own environment and lockfile.
+
+  python:setup:
+    desc: Install dependencies for all Python projects
+    cmds:
+      - for:
+          - '{{.API_DIR}}'
+          - '{{.WORKER_DIR}}'
+          - '{{.CORE_DIR}}'
+          - '{{.ADAPTERS_DIR}}'
+          - '{{.ETL_DIR}}'
+        cmd: uv sync --project "{{.ITEM}}"
+
+  # Run applications locally
+
+  gateway:run:
+    desc: Run the Go webhook gateway
+    dir: '{{.GATEWAY_DIR}}'
+    cmds:
+      - go run ./cmd/gateway {{.CLI_ARGS}}
+
+  api:run:
+    desc: Run the integration API with automatic reload
+    dir: '{{.API_DIR}}'
+    cmds:
+      - uv run uvicorn accord_api.main:app --reload --host 127.0.0.1 --port 8000 {{.CLI_ARGS}}
+
+  worker:run:
+    desc: Run the integration worker
+    dir: '{{.WORKER_DIR}}'
+    cmds:
+      - uv run python -m accord_worker.main {{.CLI_ARGS}}
+
+  etl:run:
+    desc: Run the PostgreSQL-to-ClickHouse ETL
+    dir: '{{.ETL_DIR}}'
+    cmds:
+      - uv run python -m accord_etl.main {{.CLI_ARGS}}
+
+  # Formatting
+
+  fmt:
+    desc: Format Go and Python code
+    cmds:
+      - task: go:fmt
+      - task: python:fmt
+
+  go:fmt:
+    desc: Format the webhook gateway
+    dir: '{{.GATEWAY_DIR}}'
+    cmds:
+      - go fmt ./...
+
+  python:fmt:
+    desc: Format all Python projects with Ruff
+    cmds:
+      - for:
+          - '{{.API_DIR}}'
+          - '{{.WORKER_DIR}}'
+          - '{{.CORE_DIR}}'
+          - '{{.ADAPTERS_DIR}}'
+          - '{{.ETL_DIR}}'
+        cmd: uv run --project "{{.ITEM}}" ruff format "{{.ITEM}}"
+
+  # Static checks
+
+  lint:
+    desc: Check Go and Python code
+    cmds:
+      - task: go:lint
+      - task: python:lint
+
+  go:lint:
+    desc: Check Go formatting and run go vet
+    dir: '{{.GATEWAY_DIR}}'
+    cmds:
+      - |
+        unformatted="$(gofmt -l .)"
+        if [ -n "$unformatted" ]; then
+          printf 'Go files need formatting:\n%s\n' "$unformatted"
+          exit 1
+        fi
+      - go vet ./...
+
+  python:lint:
+    desc: Check Python lint rules and formatting
+    cmds:
+      - for:
+          - '{{.API_DIR}}'
+          - '{{.WORKER_DIR}}'
+          - '{{.CORE_DIR}}'
+          - '{{.ADAPTERS_DIR}}'
+          - '{{.ETL_DIR}}'
+        cmd: >-
+          uv run --project "{{.ITEM}}" ruff check "{{.ITEM}}"
+          && uv run --project "{{.ITEM}}" ruff format --check "{{.ITEM}}"
+
+  # Tests
+
+  test:
+    desc: Run Go and Python unit tests
+    cmds:
+      - task: go:test
+      - task: python:test
+
+  go:test:
+    desc: Run webhook gateway tests with race detection
+    dir: '{{.GATEWAY_DIR}}'
+    cmds:
+      - go test -race ./... {{.CLI_ARGS}}
+
+  python:test:
+    desc: Run unit tests for every Python project
+    cmds:
+      - for:
+          - '{{.API_DIR}}'
+          - '{{.WORKER_DIR}}'
+          - '{{.CORE_DIR}}'
+          - '{{.ADAPTERS_DIR}}'
+          - '{{.ETL_DIR}}'
+        cmd: uv run --project "{{.ITEM}}" pytest "{{.ITEM}}/tests"
+
+  test:integration:
+    desc: Run integration tests against running local infrastructure
+    cmds:
+      - uv run --project "{{.API_DIR}}" pytest tests/integration {{.CLI_ARGS}}
+
+  test:e2e:
+    desc: Run end-to-end tests against the running application
+    cmds:
+      - uv run --project "{{.API_DIR}}" pytest tests/end-to-end {{.CLI_ARGS}}
+
+  check:
+    desc: Run lint and unit tests
+    cmds:
+      - task: lint
+      - task: test
