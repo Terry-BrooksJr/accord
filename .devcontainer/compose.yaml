@@ -1,0 +1,142 @@
+# Services for the dev container: the workspace container plus PostgreSQL,
+# ClickHouse, Prometheus and Grafana. Every service is reachable from the
+# workspace by its service name (postgres:5432, clickhouse:8123, ...). None
+# are published on the host, so they can't collide with other projects or the
+# root compose.yaml; devcontainer.json forwards the ports you need.
+name: accord-devcontainer
+
+# Local development credentials, defined once and shared by the service that
+# owns them and the services that connect to them. Databases only read these
+# when their data volume is first created; after changing them, remove the
+# volume (e.g. docker volume rm accord-devcontainer_pgdata).
+x-postgres-credentials:
+  user: &pg-user accord
+  password: &pg-password accord_dev_password
+  database: &pg-database accord_dev
+
+x-clickhouse-credentials:
+  user: &ch-user accord
+  password: &ch-password accord_dev_password
+  database: &ch-database accord_analytics
+
+x-grafana-credentials:
+  user: &grafana-user admin
+  password: &grafana-password accord_dev_password
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspaces/accord:cached
+    command: sleep infinity
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: *pg-user
+      PGPASSWORD: *pg-password
+      PGDATABASE: *pg-database
+      DATABASE_URL: postgres://accord:accord_dev_password@postgres:5432/accord_dev?sslmode=disable
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_HTTP_PORT: "8123"
+      CLICKHOUSE_NATIVE_PORT: "9000"
+      CLICKHOUSE_USER: *ch-user
+      CLICKHOUSE_PASSWORD: *ch-password
+      CLICKHOUSE_DB: *ch-database
+      CLICKHOUSE_URL: http://accord:accord_dev_password@clickhouse:8123/?database=accord_analytics
+      PROMETHEUS_URL: http://prometheus:9090
+      GRAFANA_URL: http://grafana:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: *pg-user
+      POSTGRES_PASSWORD: *pg-password
+      POSTGRES_DB: *pg-database
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_USER: *ch-user
+      CLICKHOUSE_PASSWORD: *ch-password
+      CLICKHOUSE_DB: *ch-database
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8123/ping || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ../infrastructure/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/ready || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  grafana:
+    image: grafana/grafana:12.2.0
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: *grafana-user
+      GF_SECURITY_ADMIN_PASSWORD: *grafana-password
+      GF_PLUGINS_PREINSTALL: grafana-clickhouse-datasource
+      # Read by the datasource provisioning file.
+      CLICKHOUSE_USER: *ch-user
+      CLICKHOUSE_PASSWORD: *ch-password
+      CLICKHOUSE_DB: *ch-database
+      POSTGRES_USER: *pg-user
+      POSTGRES_PASSWORD: *pg-password
+      POSTGRES_DB: *pg-database
+    volumes:
+      - ../infrastructure/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pgdata:
+  clickhouse-data:
+  prometheus-data:
+  grafana-data:

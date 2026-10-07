@@ -1,8 +1,16 @@
 {
   "name": "Accord Integration Platform",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "dockerComposeFile": "compose.yaml",
+  "service": "app",
+  "runServices": [
+    "app",
+    "postgres",
+    "clickhouse",
+    "prometheus",
+    "grafana"
+  ],
+  "workspaceFolder": "/workspaces/accord",
+  "shutdownAction": "stopCompose",
   "features": {
     "ghcr.io/devcontainers/features/go:1": {
       "version": "latest"
@@ -16,6 +24,9 @@
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
+    },
+    "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+      "packages": "postgresql-client"
     }
   },
   "postCreateCommand": "npm i -g @stripe/cli@latest",
@@ -28,9 +39,10 @@
   "forwardPorts": [
     8000,
     8080,
-    3000,
-    9090,
-    8123
+    "grafana:3000",
+    "prometheus:9090",
+    "clickhouse:8123",
+    "postgres:5432"
   ],
   "portsAttributes": {
     "8000": {
@@ -41,16 +53,20 @@
       "label": "Webhook Gateway",
       "onAutoForward": "notify"
     },
-    "3000": {
+    "grafana:3000": {
       "label": "Grafana",
       "onAutoForward": "silent"
     },
-    "9090": {
+    "prometheus:9090": {
       "label": "Prometheus",
       "onAutoForward": "silent"
     },
-    "8123": {
+    "clickhouse:8123": {
       "label": "ClickHouse HTTP",
+      "onAutoForward": "silent"
+    },
+    "postgres:5432": {
+      "label": "PostgreSQL (dev container)",
       "onAutoForward": "silent"
     }
   },
@@ -62,8 +78,14 @@
         "ms-python.vscode-pylance",
         "charliermarsh.ruff",
         "ms-azuretools.vscode-docker",
+        "ms-ossdata.vscode-pgsql",
         "redhat.vscode-yaml",
-        "task.vscode-task"
+        "task.vscode-task",
+        "lyonnee.vscode-go-pack",
+        "renanbs.better-go-test",
+        "premparihar.gotestexplorer",
+        "windmilleng.vscode-go-autotest",
+        "openai.chatgpt"
       ],
       "settings": {
         "editor.formatOnSave": true,
