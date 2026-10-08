@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 	"uuid"
+
+	"github.com/stripe/stripe-go/v87"
 )
 
 // Top-Level Type  and Variable Definitions
@@ -37,17 +40,20 @@ type VerifiedEvent struct {
 }
 
 type WebhookReceipt struct {
-	ID              uuid.UUID      `gorm:"type:uuid;primaryKey"`
-	CorrelationID   uuid.UUID      `gorm:"type:uuid;not null"`
-	Provider        Provider       `gorm:"not null"`
-	ProviderEventID *string        `gorm:"index"`
-	EventType       string         `gorm:"not null"`
-	Payload         datatypes.JSON `gorm:"type:jsonb;not null"`
-	PayloadHash     string         `gorm:"not null"`
-	ReceivedAt      time.Time      `gorm:"not null"`
-	Status          ReceiptStatus  `gorm:"not null"`
-	Duplicate       bool           `gorm:"not null"`
+	ID              uuid.UUID       `gorm:"type:uuid;primaryKey"`
+	CorrelationID   uuid.UUID       `gorm:"type:uuid;not null"`
+	Provider        Provider        `gorm:"not null"`
+	ProviderEventID *string         `gorm:"index"`
+	EventType       string          `gorm:"not null"`
+	Payload         json.RawMessage `gorm:"type:jsonb;not null"`
+	PayloadHash     string          `gorm:"not null"`
+	ReceivedAt      time.Time       `gorm:"not null"`
+	Status          ReceiptStatus   `gorm:"not null"`
+	Duplicate       bool            `gorm:"not null"`
 }
+
+// Provider Clients:
+var sc *stripe.Client = stripe.NewClient(os.Getenv("STRIPE_API_KEY"))
 
 func (WebhookReceipt) TableName() string {
 	return "webhook_receipts"

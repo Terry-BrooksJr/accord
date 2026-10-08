@@ -1,22 +1,16 @@
 package signatures
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
-	"os"
-	"testing"
 	"time"
-
-	"github.com/stripe/stripe-go/v87"
-	"github.com/stripe/stripe-go/v87/webhook"
+	"uuid"
 )
-
-var sc *stripe.Client = stripe.NewClient(os.Getenv("STRIPE_API_KEY"))
 
 // StripeVerifier verifies Stripe webhook signatures.
 type StripeVerifier struct {
@@ -24,9 +18,13 @@ type StripeVerifier struct {
 	EndpointSecret string
 }
 
-func (sv *StripeVerifier) HashPayload() string {
-	sum :=  sha256.Sum256(sv.)
+// HashPayload returns the SHA-256 hash of the verified event's raw payload
+// encoded as a hexadecimal string.
+func (ve *VerifiedEvent) HashPayload() string {
+	sum := sha256.Sum256(ve.RawPayload)
+	return hex.EncodeToString(sum[:])
 }
+
 // Verify validates the Stripe webhook signature using the Stripe-Signature
 // header, the raw request body, and the configured endpoint secret.
 // It returns a VerifiedEvent containing the event ID, type, original payload,
@@ -40,10 +38,11 @@ func (sv *StripeVerifier) Verify(
 	signature := headers.Get("Stripe-Signature")
 	eventData, err := sc.ConstructEvent(body, signature, sv.EndpointSecret)
 	if err != nil {
-		slog.Error("ERROR: Unable to Verify Stripe Webhood", "err", err)
-		return VerifiedEvent{}, fmt.Errorf("Unable to Construct Event During Strip Signature Verififcation:%w", err)
+		slog.Error("Unable to verify Stripe webhook", "err", err)
+		return VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
 	}
 	event := VerifiedEvent{
+		CorrelationID:   uuid.New(),
 		Provider:        1,
 		ProviderEventID: eventData.ID,
 		EventType:       string(eventData.Type),
@@ -53,69 +52,19 @@ func (sv *StripeVerifier) Verify(
 	return event, nil
 }
 
-func TestStripeVeriferVerifyValidWebhook(t *testing.T) {
-	// Arrange: create a fixture compatible with this SDK version.
-	const secret = "whsec_test_secret"
-
-	body, err := json.Marshal(map[string]any{
-		"id":          "evt_test_123",
-		"object":      "event",
-		"api_version": stripe.APIVersion,
-		"type":        "payment_intent.succeeded",
-		"data": map[string]any{
-			"object": map[string]any{
-				"id":     "pi_test_123",
-				"object": "payment_intent",
-			},
-		},
-	})
-	if err != nil {
-		t.Fatalf("create fixture: %v", err)
-	}
-
-	signed := webhook.GenerateTestSignedPayload(
-		&webhook.UnsignedPayload{
-			Payload:   body,
-			Secret:    secret,
-			Timestamp: time.Now(),
-		},
-	)
-
-	headers := make(http.Header)
-	headers.Set("Stripe-Signature", signed.Header)
-
-	verifier := &StripeVerifier{
-		EndpointSecret: secret,
-	}
-
-	// Act.
-	before := time.Now()
-	event, err := verifier.Verify(
-		context.Background(),
-		headers,
-		body,
-	)
-	after := time.Now()
-
-	// Assert.
-	if err != nil {
-		t.Fatalf("expected successful verification, got: %v", err)
-	}
-
-	if event.ProviderEventID != "evt_test_123" {
-		t.Errorf("unexpected event ID: %q", event.ProviderEventID)
-	}
-
-	if event.EventType != "payment_intent.succeeded" {
-		t.Errorf("unexpected event type: %q", event.EventType)
-	}
-
-	if !bytes.Equal(event.Payload, body) {
-		t.Error("payload does not preserve the original webhook body")
-	}
-
-	if event.ReceivedAt.Before(before) ||
-		event.ReceivedAt.After(after) {
-		t.Error("received timestamp is outside the verification interval")
+func NewWebhookReceipt(
+	event VerifiedEvent,
+	status ReceiptStatus,
+) WebhookReceipt {
+	return WebhookReceipt{
+		ID:              uuid.New(),
+		CorrelationID:   event.CorrelationID,
+		Provider:        event.Provider,
+		ProviderEventID: &event.ProviderEventID,
+		EventType:       event.EventType,
+		Payload:         event.RawPayload,
+		PayloadHash:     event.HashPayload(),
+		ReceivedAt:      event.ReceivedAt,
+		Status:          status,
 	}
 }

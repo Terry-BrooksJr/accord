@@ -85,7 +85,8 @@
         "renanbs.better-go-test",
         "premparihar.gotestexplorer",
         "windmilleng.vscode-go-autotest",
-        "openai.chatgpt"
+        "openai.chatgpt",
+        "sourcery.sourcery"
       ],
       "settings": {
         "editor.formatOnSave": true,

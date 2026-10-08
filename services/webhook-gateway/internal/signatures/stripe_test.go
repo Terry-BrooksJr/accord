@@ -45,7 +45,7 @@ func TestStripeVerifierVerify(t *testing.T) {
 	headers := make(http.Header)
 	headers.Set("Stripe-Signature", signed.Header)
 
-	verifier := &StripeVerifer{
+	verifier := &StripeVerifier{
 		EndpointSecret: secret,
 	}
 	// Act: call Verify.
@@ -70,7 +70,7 @@ func TestStripeVerifierVerify(t *testing.T) {
 		t.Errorf("unexpected event type: %q", event.EventType)
 	}
 
-	if !bytes.Equal(event.Payload, body) {
+	if !bytes.Equal(event.RawPayload, body) {
 		t.Error("payload does not preserve the original webhook body")
 	}
 
@@ -157,7 +157,7 @@ func TestStripeVeriferVerifyRejectsInvalidWebhooks(t *testing.T) {
 				)
 			}
 
-			verifier := &StripeVerifer{
+			verifier := &StripeVerifier{
 				EndpointSecret: secret,
 			}
 
@@ -172,8 +172,40 @@ func TestStripeVeriferVerifyRejectsInvalidWebhooks(t *testing.T) {
 			}
 
 			if event.ProviderEventID != "" ||
-				len(event.Payload) != 0 {
+				len(event.RawPayload) != 0 {
 				t.Error("verification failure returned event data")
+			}
+		})
+	}
+}
+
+func TestVerifiedEvent_HashPayload(t *testing.T) {
+	tests := []struct {
+		name    string
+		payload []byte
+		want    string
+	}{
+		{
+			name: "nil payload",
+			want: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+		},
+		{
+			name:    "empty payload",
+			payload: []byte{},
+			want:    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+		},
+		{
+			name:    "nonempty payload",
+			payload: []byte("abc"),
+			want:    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ve := VerifiedEvent{RawPayload: tt.payload}
+			got := ve.HashPayload()
+			if got != tt.want {
+				t.Errorf("HashPayload() = %v, want %v", got, tt.want)
 			}
 		})
 	}
