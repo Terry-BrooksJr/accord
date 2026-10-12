@@ -1,0 +1,66 @@
+{
+    "[go]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "never"
+        },
+        "editor.defaultFormatter": "alpsmonaco.go-imports-alphabetical",
+        "editor.formatOnSave": true, //optional
+    },
+    "python.analysis.autoImportCompletions": false,
+    "python.analysis.autoSearchPaths": false,
+    "python.analysis.fixAll": [],
+    // File scanning
+    "linker.fileExtensions": [
+        "js",
+        "ts",
+        "py",
+        "go",
+        "css"
+    ],
+    "linker.exclude": [
+        "**/node_modules/**",
+        "**/.git/**"
+    ],
+    // Preview options
+    "linker.preview.diffView": true,
+    "linker.preview.layout": "side-by-side",
+    // Formatting preferences
+    "linker.formatting.quoteStyle": "auto",
+    "linker.formatting.semicolons": "auto",
+    // History management
+    "linker.history.enabled": true,
+    "linker.history.maxEntries": 50,
+    // Language toggles
+    "linker.multiLanguage.python": true,
+    "linker.multiLanguage.python.aliasSupport": true, // NEW!
+    "linker.multiLanguage.go": true,
+    "linker.multiLanguage.go.aliasSupport": true, // NEW!
+    "linker.multiLanguage.css": true,
+    "linker.multiLanguage.css.aliasSupport": true, // NEW!
+    // Git integration
+    "linker.autoStageChanges": false,
+    "pgsql.connections": [
+        {
+            "id": "3B7D889C-D484-43A7-A9E5-8EACA329FC52",
+            "groupId": "C09DDD78-BD43-416D-BD60-59576DF280FF",
+            "authenticationType": "SqlLogin",
+            "connectTimeout": 15,
+            "applicationName": "vscode-pgsql",
+            "clientEncoding": "utf8",
+            "sslmode": "disable",
+            "savePassword": true,
+            "sslRootCertMode": "none",
+            "server": "Workspacer Dockerized DB",
+            "user": "python_agent",
+            "password": "",
+            "database": "accord",
+            "profileName": "Workspacer Dockerized DB, accord (python_agent)",
+            "port": "5432",
+            "hostaddr": "172.19.0.2",
+            "sshPassword": "",
+            "expiresOn": 0
+        }
+    ],
+    "typescript.updateImportsOnFileMove.enabled": "never",
+    "javascript.updateImportsOnFileMove.enabled": "never"
+}

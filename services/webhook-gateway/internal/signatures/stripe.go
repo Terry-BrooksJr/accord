@@ -9,7 +9,9 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
-	"uuid"
+
+	"github.com/google/uuid"
+	"github.com/stripe/stripe-go/v87/webhook"
 )
 
 // StripeVerifier verifies Stripe webhook signatures.
@@ -36,7 +38,7 @@ func (sv *StripeVerifier) Verify(
 	body []byte,
 ) (VerifiedEvent, error) {
 	signature := headers.Get("Stripe-Signature")
-	eventData, err := sc.ConstructEvent(body, signature, sv.EndpointSecret)
+	eventData, err := webhook.ConstructEvent(body, signature, sv.EndpointSecret)
 	if err != nil {
 		slog.Error("Unable to verify Stripe webhook", "err", err)
 		return VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
@@ -50,21 +52,4 @@ func (sv *StripeVerifier) Verify(
 		RawPayload:      json.RawMessage(body),
 	}
 	return event, nil
-}
-
-func NewWebhookReceipt(
-	event VerifiedEvent,
-	status ReceiptStatus,
-) WebhookReceipt {
-	return WebhookReceipt{
-		ID:              uuid.New(),
-		CorrelationID:   event.CorrelationID,
-		Provider:        event.Provider,
-		ProviderEventID: &event.ProviderEventID,
-		EventType:       event.EventType,
-		Payload:         event.RawPayload,
-		PayloadHash:     event.HashPayload(),
-		ReceivedAt:      event.ReceivedAt,
-		Status:          status,
-	}
 }

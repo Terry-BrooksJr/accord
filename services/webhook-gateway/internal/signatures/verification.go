@@ -3,33 +3,61 @@ package signatures
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
-	"os"
 	"time"
-	"uuid"
 
-	"github.com/stripe/stripe-go/v87"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-// Top-Level Type  and Variable Definitions
+// Provider identifies the external service that produced a webhook event.
 type Provider int
+
+// ReceiptStatus represents the processing status of a webhook receipt.
 type ReceiptStatus string
 
 const (
+	// Unknown indicates that the webhook provider is not known.
 	Unknown Provider = iota
+
+	// Stripe identifies Stripe as the webhook provider.
 	Stripe
+
+	// Shippo identifies Shippo as the webhook provider.
 	Shippo
+
+	// Zendesk identifies Zendesk as the webhook provider.
 	Zendesk
+
+	// Plaid identifies Plaid as the webhook provider.
 	Plaid
+
+	// Other identifies a provider not represented by a named Provider constant.
 	Other
 )
 
 const (
-	ReceiptStatusAccepted  ReceiptStatus = "ACCEPTED"
+	// ReceiptStatusAccepted indicates that the webhook was accepted.
+	ReceiptStatusAccepted ReceiptStatus = "ACCEPTED"
+
+	// ReceiptStatusDuplicate indicates that the webhook was identified as a duplicate.
 	ReceiptStatusDuplicate ReceiptStatus = "DUPLICATE"
-	ReceiptStatusError     ReceiptStatus = "ERROR"
+
+	// ReceiptStatusError indicates that an error occurred while processing the webhook.
+	ReceiptStatusError ReceiptStatus = "ERROR"
 )
 
+type JournalError struct {
+	msg string
+}
+
+func (je *JournalError) Error() string {
+	return fmt.Sprintf("jouraling error: $s", je.msg)
+}
+
+// VerifiedEvent contains the normalized data extracted from a verified webhook.
 type VerifiedEvent struct {
 	CorrelationID   uuid.UUID
 	Provider        Provider
@@ -39,6 +67,7 @@ type VerifiedEvent struct {
 	RawPayload      json.RawMessage
 }
 
+// WebhookReceipt represents a persisted record of a received webhook.
 type WebhookReceipt struct {
 	ID              uuid.UUID       `gorm:"type:uuid;primaryKey"`
 	CorrelationID   uuid.UUID       `gorm:"type:uuid;not null"`
@@ -52,14 +81,8 @@ type WebhookReceipt struct {
 	Duplicate       bool            `gorm:"not null"`
 }
 
-// Provider Clients:
-var sc *stripe.Client = stripe.NewClient(os.Getenv("STRIPE_API_KEY"))
-
-func (WebhookReceipt) TableName() string {
-	return "webhook_receipts"
-}
-
-type Verifer interface {
+// WebhookVerifier verifies webhook requests and returns their normalized event data.
+type WebhookVerifier interface {
 	Verify(
 		ctx context.Context,
 		headers http.Header,
@@ -67,5 +90,65 @@ type Verifer interface {
 	) (VerifiedEvent, error)
 }
 
-type HashPayload interface {
+// WebhookReceiptRepository persists webhook receipt records.
+type WebhookReceiptRepository interface {
+	RecordEvent(
+		ctx context.Context,
+		receipt *WebhookReceipt,
+	) error
+}
+
+// GORMWebhookReceiptRepository persists webhook receipts using GORM.
+type GORMWebhookReceiptRepository struct {
+	db *gorm.DB
+}
+
+// NewWebhookReceipt creates a webhook receipt from a verified event and processing status.
+func NewWebhookReceipt(
+	event VerifiedEvent,
+	status ReceiptStatus,
+) WebhookReceipt {
+	return WebhookReceipt{
+		ID:              uuid.New(),
+		CorrelationID:   event.CorrelationID,
+		Provider:        event.Provider,
+		ProviderEventID: &event.ProviderEventID,
+		EventType:       event.EventType,
+		Payload:         event.RawPayload,
+		PayloadHash:     event.HashPayload(),
+		ReceivedAt:      event.ReceivedAt,
+		Status:          status,
+	}
+}
+
+// TableName returns the database table name used for webhook receipts.
+func (WebhookReceipt) TableName() string {
+	return "webhook_receipts"
+}
+
+// Create persists a webhook receipt in the configured database.
+func (r *GORMWebhookReceiptRepository) RecordEvent(
+	ctx context.Context,
+	receipt *WebhookReceipt,
+) error {
+
+	var existing WebhookReceipt
+
+	results := r.db.WithContext(ctx).Where(
+		"provider = ? AND provider_event_id = ?",
+		receipt.Provider,
+		receipt.ProviderEventID).
+		First(&existing)
+	// There is not Duplicate Record Path
+	if errors.Is(results.Error, gorm.ErrRecordNotFound) {
+		return r.db.WithContext(ctx).Create(receipt).Error
+	}
+
+	// There is a Duplicate
+	if results.Error != nil {
+		return fmt.Errorf(
+			"checking existing webhook receipt: %w",
+			results.Error,
+		)
+	}
 }

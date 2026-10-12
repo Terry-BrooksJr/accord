@@ -35,7 +35,7 @@ class WebhookReceipt(SQLModel, table=True):
     provider: Provider
     provider_event_id: str | None = Field(default=None, index=True)
     event_type: str = Field(index=True, nullable=False)
-    payload: dict[str, Any] = Field(nullable=False, sa_column=Column(JSON))
+    rawpayload: dict[str, Any] = Field(sa_column=Column(JSON))
     payload_hash: str = Field(nullable=False, unique=True)
     received_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), nullable=False
