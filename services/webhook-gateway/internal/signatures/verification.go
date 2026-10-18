@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
-	"time"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"net/http"
+	"time"
 )
 
 // Provider identifies the external service that produced a webhook event.
@@ -151,4 +150,5 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 			results.Error,
 		)
 	}
+	return errors.New("error: unable to record event")
 }
