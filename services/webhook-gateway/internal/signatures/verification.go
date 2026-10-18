@@ -145,3 +145,25 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 		return nil
 	})
 }
+
+// 	var existing WebhookReceipt
+
+// 	results := r.db.WithContext(ctx).Where(
+// 		"provider = ? AND provider_event_id = ?",
+// 		receipt.Provider,
+// 		receipt.ProviderEventID).
+// 		First(&existing)
+// 	// There is not Duplicate Record Path
+// 	if errors.Is(results.Error, gorm.ErrRecordNotFound) {
+// 		return r.db.WithContext(ctx).Create(receipt).Error
+// 	}
+// 	//
+// 	// There is a Duplicate
+// 	if results.Error != nil {
+// 		return fmt.Errorf(
+// 			"checking existing webhook receipt: %w",
+// 			results.Error,
+// 		)
+// 	}
+// 	return errors.New("error: unable to record event")
+// }
