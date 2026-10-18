@@ -22,12 +22,16 @@
     "ghcr.io/devcontainers-extra/features/go-task:1": {},
     "ghcr.io/devcontainers-extra/features/direnv:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {
+    "ghcr.io/devcontainers/features/node:2.1.1": {
       "version": "lts"
+    },
+    "ghcr.io/devcontainers-extra/features/npm-packages:1.0.1": {
+      "packages": "stripe/cli@latest"
     },
     "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
       "packages": "postgresql-client"
-    }
+    },
+    "ghcr.io/nullcoder/devcontainer-features/stripe-cli:1": {}
   },
   "postCreateCommand": "npm i -g @stripe/cli@latest",
   "remoteUser": "vscode",
@@ -86,7 +90,8 @@
         "premparihar.gotestexplorer",
         "windmilleng.vscode-go-autotest",
         "openai.chatgpt",
-        "sourcery.sourcery"
+        "sourcery.sourcery",
+        "formulahendry.code-runner"
       ],
       "settings": {
         "editor.formatOnSave": true,

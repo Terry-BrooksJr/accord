@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -47,14 +46,16 @@ const (
 
 	// ReceiptStatusError indicates that an error occurred while processing the webhook.
 	ReceiptStatusError ReceiptStatus = "ERROR"
+
+	ReceiptStatusRejected ReceiptStatus = "REJECTED"
 )
 
 // VerifiedEvent contains the normalized data extracted from a verified webhook.
 type VerifiedEvent struct {
 	CorrelationID   uuid.UUID
 	Provider        Provider
-	ProviderEventID string
-	EventType       string
+	ProviderEventID string `json:"id"`
+	EventType       string `json:"type"`
 	ReceivedAt      time.Time
 	RawPayload      json.RawMessage
 }
@@ -92,23 +93,41 @@ type WebhookReceiptRepository interface {
 
 // GORMWebhookReceiptRepository persists webhook receipts using GORM.
 type GORMWebhookReceiptRepository struct {
-	db *gorm.DB
+	DB *gorm.DB
+}
+
+type ProcessedReceipt struct {
+	AccordID      uuid.UUID
+	CorrelationID uuid.UUID
+	RecordedAt    time.Time
+	IsDuplicate   bool
+}
+
+func NewProcessedReciept(reciept WebhookReceipt) ProcessedReceipt {
+	return ProcessedReceipt{
+		AccordID:      reciept.ID,
+		CorrelationID: reciept.CorrelationID,
+		RecordedAt:    reciept.ReceivedAt,
+		IsDuplicate:   reciept.IsDuplicate,
+	}
 }
 
 // NewWebhookReceipt creates a webhook receipt from a verified event and processing status.
 func NewWebhookReceipt(
 	event VerifiedEvent,
 	status ReceiptStatus,
+	recievedAt time.Time,
+	correlationID uuid.UUID,
 ) WebhookReceipt {
 	return WebhookReceipt{
 		ID:              uuid.New(),
-		CorrelationID:   event.CorrelationID,
+		CorrelationID:   correlationID,
 		Provider:        event.Provider,
 		ProviderEventID: &event.ProviderEventID,
 		EventType:       event.EventType,
 		Payload:         event.RawPayload,
 		PayloadHash:     event.HashPayload(),
-		ReceivedAt:      event.ReceivedAt,
+		ReceivedAt:      recievedAt,
 		Status:          status,
 	}
 }
@@ -123,7 +142,7 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 	ctx context.Context,
 	receipt *WebhookReceipt,
 ) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var existing WebhookReceipt
 		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("provider = ? AND provider_event_id = ?", receipt.Provider, receipt.ProviderEventID).
@@ -139,31 +158,9 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 			receipt.IsDuplicate = true
 			receipt.Status = ReceiptStatusDuplicate
 		}
-		if err := tx.Create(&receipt).Error; err != nil {
+		if err := tx.Create(receipt).Error; err != nil {
 			return err
 		}
 		return nil
 	})
 }
-
-// 	var existing WebhookReceipt
-
-// 	results := r.db.WithContext(ctx).Where(
-// 		"provider = ? AND provider_event_id = ?",
-// 		receipt.Provider,
-// 		receipt.ProviderEventID).
-// 		First(&existing)
-// 	// There is not Duplicate Record Path
-// 	if errors.Is(results.Error, gorm.ErrRecordNotFound) {
-// 		return r.db.WithContext(ctx).Create(receipt).Error
-// 	}
-// 	//
-// 	// There is a Duplicate
-// 	if results.Error != nil {
-// 		return fmt.Errorf(
-// 			"checking existing webhook receipt: %w",
-// 			results.Error,
-// 		)
-// 	}
-// 	return errors.New("error: unable to record event")
-// }

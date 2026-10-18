@@ -6,12 +6,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/stripe/stripe-go/v87/webhook"
 	"log/slog"
 	"net/http"
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/stripe/stripe-go/v87/webhook"
 )
 
 // StripeVerifier verifies Stripe webhook signatures.

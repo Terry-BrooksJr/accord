@@ -17,7 +17,13 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/ramya-rao-a/go-outline v0.0.0-20210608161538-9736a4bde949 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
+	github.com/sqs/goreturns v0.0.0-20231030191505-16fc3d8edd91 // indirect
+	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/telemetry v0.0.0-20261016163328-824aa3d1d8dd // indirect
 	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/tools v0.52.0 // indirect
 )

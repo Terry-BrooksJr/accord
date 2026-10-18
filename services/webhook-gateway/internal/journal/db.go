@@ -1,14 +1,19 @@
 package journal
 
 import (
-	"log"
-	"gorm.io/gorm"
+	"accord/services/webhook-gateway/internal/signatures"
+	"fmt"
 	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-dsn := "host=127.19.0.2 user=go_agent password=zhb*ycd0rvc5zmz9YUG dbname=accord port=5432 sslmode=disable"
-
-db, err := gorm.Open(
-    postgres.Open(dsn),
-    &gorm.Config{},
-)
+func NewRepository(dsn string) (*signatures.GORMWebhookReceiptRepository, error) {
+	db, err := gorm.Open(
+		postgres.Open(dsn),
+		&gorm.Config{},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("unable to establish connection to DB: %w", err)
+	}
+	return &signatures.GORMWebhookReceiptRepository{DB: db}, nil
+}
