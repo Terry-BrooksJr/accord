@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"net/http"
 	"time"
 )
@@ -77,7 +78,7 @@ type WebhookReceipt struct {
 	PayloadHash     string          `gorm:"not null"`
 	ReceivedAt      time.Time       `gorm:"not null"`
 	Status          ReceiptStatus   `gorm:"not null"`
-	Duplicate       bool            `gorm:"not null"`
+	IsDuplicate     bool            `gorm:"not null"`
 }
 
 // WebhookVerifier verifies webhook requests and returns their normalized event data.
@@ -130,25 +131,47 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 	ctx context.Context,
 	receipt *WebhookReceipt,
 ) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var existing WebhookReceipt
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("provider = ? AND provider_event_id = ?", receipt.Provider, receipt.ProviderEventID).
+			First(&existing).Error
 
-	var existing WebhookReceipt
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 
-	results := r.db.WithContext(ctx).Where(
-		"provider = ? AND provider_event_id = ?",
-		receipt.Provider,
-		receipt.ProviderEventID).
-		First(&existing)
-	// There is not Duplicate Record Path
-	if errors.Is(results.Error, gorm.ErrRecordNotFound) {
-		return r.db.WithContext(ctx).Create(receipt).Error
-	}
-
-	// There is a Duplicate
-	if results.Error != nil {
-		return fmt.Errorf(
-			"checking existing webhook receipt: %w",
-			results.Error,
-		)
-	}
-	return errors.New("error: unable to record event")
+			} else {
+				return err
+			}
+		} else {
+			receipt.IsDuplicate = true
+			receipt.Status = ReceiptStatusDuplicate
+		}
+		if err := tx.Create(&receipt).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
+
+// 	var existing WebhookReceipt
+
+// 	results := r.db.WithContext(ctx).Where(
+// 		"provider = ? AND provider_event_id = ?",
+// 		receipt.Provider,
+// 		receipt.ProviderEventID).
+// 		First(&existing)
+// 	// There is not Duplicate Record Path
+// 	if errors.Is(results.Error, gorm.ErrRecordNotFound) {
+// 		return r.db.WithContext(ctx).Create(receipt).Error
+// 	}
+// 	//
+// 	// There is a Duplicate
+// 	if results.Error != nil {
+// 		return fmt.Errorf(
+// 			"checking existing webhook receipt: %w",
+// 			results.Error,
+// 		)
+// 	}
+// 	return errors.New("error: unable to record event")
+// }
