@@ -37,6 +37,7 @@ func (sv *StripeVerifier) Verify(
 	body []byte,
 ) (VerifiedEvent, error) {
 	signature := headers.Get("Stripe-Signature")
+	fmt.Print(signature)
 	eventData, err := webhook.ConstructEvent(body, signature, sv.EndpointSecret)
 	if err != nil {
 		slog.Error("Unable to verify Stripe webhook", "err", err)

@@ -47,31 +47,34 @@ const (
 	// ReceiptStatusError indicates that an error occurred while processing the webhook.
 	ReceiptStatusError ReceiptStatus = "ERROR"
 
+	// ReceiptStatusRejected indicates that the webhook was rejected.
 	ReceiptStatusRejected ReceiptStatus = "REJECTED"
 )
 
 // VerifiedEvent contains the normalized data extracted from a verified webhook.
 type VerifiedEvent struct {
-	CorrelationID   uuid.UUID
-	Provider        Provider
-	ProviderEventID string `json:"id"`
-	EventType       string `json:"type"`
-	ReceivedAt      time.Time
-	RawPayload      json.RawMessage
+	CorrelationID     uuid.UUID
+	Provider          Provider
+	ProviderEventID   string `json:"id"`
+	EventType         string `json:"type"`
+	ReceivedAt        time.Time
+	ProviderCreatedAt int64 `json:"created"`
+	RawPayload        json.RawMessage
 }
 
 // WebhookReceipt represents a persisted record of a received webhook.
 type WebhookReceipt struct {
-	ID              uuid.UUID       `gorm:"type:uuid;primaryKey"`
-	CorrelationID   uuid.UUID       `gorm:"type:uuid;not null"`
-	Provider        Provider        `gorm:"not null"`
-	ProviderEventID *string         `gorm:"index"`
-	EventType       string          `gorm:"not null"`
-	Payload         json.RawMessage `gorm:"type:jsonb;not null"`
-	PayloadHash     string          `gorm:"not null"`
-	ReceivedAt      time.Time       `gorm:"not null"`
-	Status          ReceiptStatus   `gorm:"not null"`
-	IsDuplicate     bool            `gorm:"not null"`
+	ID                uuid.UUID       `gorm:"type:uuid;primaryKey"`
+	CorrelationID     uuid.UUID       `gorm:"type:uuid;not null"`
+	Provider          Provider        `gorm:"not null"`
+	ProviderEventID   *string         `gorm:"index"`
+	EventType         string          `gorm:"not null"`
+	Payload           json.RawMessage `gorm:"type:jsonb;not null"`
+	PayloadHash       string          `gorm:"not null"`
+	ReceivedAt        time.Time       `gorm:"not null"`
+	ProviderCreatedAt time.Time       `gorm:"not null"`
+	Status            ReceiptStatus   `gorm:"not null"`
+	IsDuplicate       bool            `gorm:"not null"`
 }
 
 // WebhookVerifier verifies webhook requests and returns their normalized event data.
@@ -96,39 +99,45 @@ type GORMWebhookReceiptRepository struct {
 	DB *gorm.DB
 }
 
+// ProcessedReceipt contains the identifiers and processing metadata for a webhook receipt.
 type ProcessedReceipt struct {
 	AccordID      uuid.UUID
 	CorrelationID uuid.UUID
 	RecordedAt    time.Time
+	RecievedAt    time.Time
 	IsDuplicate   bool
 }
 
+// NewProcessedReciept creates a processed receipt from a webhook receipt.
 func NewProcessedReciept(reciept WebhookReceipt) ProcessedReceipt {
 	return ProcessedReceipt{
 		AccordID:      reciept.ID,
 		CorrelationID: reciept.CorrelationID,
-		RecordedAt:    reciept.ReceivedAt,
+		RecordedAt:    time.Now(),
+		RecievedAt:    reciept.ReceivedAt,
 		IsDuplicate:   reciept.IsDuplicate,
 	}
 }
 
-// NewWebhookReceipt creates a webhook receipt from a verified event and processing status.
+// NewWebhookReceipt creates a webhook receipt from a verified event, processing status, and receipt time.
 func NewWebhookReceipt(
 	event VerifiedEvent,
 	status ReceiptStatus,
 	recievedAt time.Time,
 	correlationID uuid.UUID,
 ) WebhookReceipt {
+	epochConvertedTime := time.Unix(event.ProviderCreatedAt, 0)
 	return WebhookReceipt{
-		ID:              uuid.New(),
-		CorrelationID:   correlationID,
-		Provider:        event.Provider,
-		ProviderEventID: &event.ProviderEventID,
-		EventType:       event.EventType,
-		Payload:         event.RawPayload,
-		PayloadHash:     event.HashPayload(),
-		ReceivedAt:      recievedAt,
-		Status:          status,
+		ID:                uuid.New(),
+		CorrelationID:     correlationID,
+		Provider:          event.Provider,
+		ProviderEventID:   &event.ProviderEventID,
+		EventType:         event.EventType,
+		Payload:           event.RawPayload,
+		PayloadHash:       event.HashPayload(),
+		ReceivedAt:        recievedAt,
+		ProviderCreatedAt: epochConvertedTime.UTC(),
+		Status:            status,
 	}
 }
 
@@ -137,7 +146,7 @@ func (WebhookReceipt) TableName() string {
 	return "webhook_receipts"
 }
 
-// Create persists a webhook receipt in the configured database.
+// RecordEvent persists a webhook receipt in the configured database.
 func (r *GORMWebhookReceiptRepository) RecordEvent(
 	ctx context.Context,
 	receipt *WebhookReceipt,
