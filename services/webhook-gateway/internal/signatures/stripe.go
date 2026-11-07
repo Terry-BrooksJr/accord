@@ -5,18 +5,23 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/stripe/stripe-go/v87"
 	"github.com/stripe/stripe-go/v87/webhook"
 	"log/slog"
 	"net/http"
 	"time"
 )
 
+var ErrMissingStripeSignature = errors.New("missing stripe signature")
+
 // StripeVerifier verifies Stripe webhook signatures.
 type StripeVerifier struct {
 	// EndpointSecret is the signing secret for the Stripe webhook endpoint.
 	EndpointSecret string
+	EventData      stripe.Event
 }
 
 // HashPayload returns the SHA-256 hash of the verified event's raw payload
@@ -37,15 +42,21 @@ func (sv *StripeVerifier) Verify(
 	body []byte,
 ) (VerifiedEvent, error) {
 	signature := headers.Get("Stripe-Signature")
-	fmt.Print(signature)
-	eventData, err := webhook.ConstructEvent(body, signature, sv.EndpointSecret)
+
+	if signature == "" {
+		slog.ErrorContext(ctx, "stripe-signature no in header")
+		return VerifiedEvent{}, ErrMissingStripeSignature
+	}
+	fmt.Print(signature) //TODO: Remove me LATER for testing ONLY
+	eventData, err := webhook.ConstructEventWithOptions(body, signature, sv.EndpointSecret, webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
 	if err != nil {
 		slog.Error("Unable to verify Stripe webhook", "err", err)
 		return VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
 	}
+	slog.Info("incoming request verifed")
 	event := VerifiedEvent{
 		CorrelationID:   uuid.New(),
-		Provider:        1,
+		Provider:        Stripe,
 		ProviderEventID: eventData.ID,
 		EventType:       string(eventData.Type),
 		ReceivedAt:      time.Now(),

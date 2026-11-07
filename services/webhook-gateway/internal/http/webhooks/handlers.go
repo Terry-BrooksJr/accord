@@ -14,12 +14,16 @@ import (
 
 func NewStripeHandler(
 	repo signatures.WebhookReceiptRepository,
+	rejectionLog signatures.GORMWebhookRejectionRepository,
 	verifier signatures.WebhookVerifier,
 	maxBodyBytes int64,
 	logger *slog.Logger,
 ) (*StripeHandler, error) {
 	if repo == nil {
 		return nil, errors.New("repo cannot be of nil value")
+	}
+	if rejectionLog.DB == nil {
+		return nil, errors.New("rejection log cannot be of nil value")
 	}
 	if verifier == nil {
 		return nil, errors.New("verifier cannot be of nil value")
@@ -32,6 +36,7 @@ func NewStripeHandler(
 	}
 	return &StripeHandler{
 		Repo:         repo,
+		RejectionLog:  rejectionLog,
 		Verifier:     verifier,
 		MaxBodyBytes: maxBodyBytes,
 		Logger:       logger,
@@ -41,6 +46,7 @@ func NewStripeHandler(
 
 type StripeHandler struct {
 	Repo         signatures.WebhookReceiptRepository
+	RejectionLog signatures.GORMWebhookRejectionRepository
 	Verifier     signatures.WebhookVerifier
 	MaxBodyBytes int64
 	Logger       *slog.Logger
@@ -64,7 +70,25 @@ func (sh *StripeHandler) CatchWebhook(
 	if err != nil {
 		var maxBytesErr *http.MaxBytesError
 		if errors.As(err, &maxBytesErr) {
+			rejection, err := sh.Verifier.CaptureRejection(
+				body,
+				*r,
+				currentTime,
+				ctx,
+				incomingRequestCorrelationID,
+				signatures.RejectionReasonTypePayloadTooLarge,
+				"Incoming Request Body Is Over the Set Threshold.",
+			)
+			if err != nil {
+				sh.Logger.ErrorContext(ctx, "unable to capture rejection", "error", err)
+			}
+			rejectionLoggingIssue := sh.RejectionLog.LogRejection(ctx, &rejection)
+			if rejectionLoggingIssue != nil {
+				sh.Logger.ErrorContext(ctx, "unable to log rejection", "error", err)
+
+			}
 			http.Error(w, "Request body too large", http.StatusRequestEntityTooLarge)
+
 			return
 		}
 		http.Error(w, "Unable to read request's body", http.StatusBadRequest)
@@ -73,8 +97,35 @@ func (sh *StripeHandler) CatchWebhook(
 	}
 
 	incomingEvent, err := sh.Verifier.Verify(ctx, r.Header, body)
+
 	if err != nil {
+		var rejectionReason signatures.RejectionReasonType
+		var rejectionDetails string
+		if errors.Is(err, signatures.ErrMissingStripeSignature) {
+			rejectionReason = signatures.RejectionReasonTypeMissingSignature
+			rejectionDetails = "Incoming Request failed to provide Stripe Signature in HTTP Headers"
+		}
 		sh.Logger.WarnContext(ctx, fmt.Sprintf("warning: unverifiable stripe webhook recieved: %s", err), "correlationID", incomingRequestCorrelationID)
+		rejectionReason = signatures.RejectionReasonTypeInvaildSignature
+		rejectionDetails = "Incoming Request Cannot Be Verifed and Deemed Invaild"
+
+		rejection, err := sh.Verifier.CaptureRejection(
+			body,
+			*r,
+			currentTime,
+			ctx,
+			incomingRequestCorrelationID,
+			rejectionReason,
+			rejectionDetails,
+		)
+		if err != nil {
+			sh.Logger.ErrorContext(ctx, "unable to capture rejection", "error", err)
+		}
+		rejectionLoggingIssue := sh.RejectionLog.LogRejection(ctx, &rejection)
+		if rejectionLoggingIssue != nil {
+			sh.Logger.ErrorContext(ctx, "unable to log rejection", "error", err)
+
+		}
 		http.Error(w, "unable to verify webhook authenticity", http.StatusUnauthorized)
 		return
 	}

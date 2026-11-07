@@ -8,6 +8,9 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.1",
+    "dotenv>=0.9.9",
+    "psycopg>=3.3.8",
     "sqlmodel>=0.0.48",
 ]
 
@@ -17,3 +20,21 @@ accord = "accord:main"
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]
 build-backend = "uv_build"
+
+
+[tool.uv.build-backend]
+module-root = "services"
+
+
+[tool.ruff]
+target-version = "py312"
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+]
+
+fixable = ["ALL"]
+unfixable = []
+

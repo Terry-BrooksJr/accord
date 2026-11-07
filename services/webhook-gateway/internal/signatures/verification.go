@@ -4,10 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"net"
 	"net/http"
+	"net/netip"
+	"strings"
 	"time"
 )
 
@@ -49,6 +53,9 @@ const (
 
 	// ReceiptStatusRejected indicates that the webhook was rejected.
 	ReceiptStatusRejected ReceiptStatus = "REJECTED"
+
+	// ReceiptStatusRejected indicates that the webhook is pending - New (DEFAULT STATUS ON CREATION).
+	ReceiptStatusPendingNew ReceiptStatus = "PENDING - NEW"
 )
 
 // VerifiedEvent contains the normalized data extracted from a verified webhook.
@@ -84,6 +91,15 @@ type WebhookVerifier interface {
 		headers http.Header,
 		body []byte,
 	) (VerifiedEvent, error)
+	CaptureRejection(
+		body []byte,
+		r http.Request,
+		timeReceived time.Time,
+		ctx context.Context,
+		correlationID uuid.UUID,
+		reasonRejected RejectionReasonType,
+		details string,
+	) (WebhookRejection, error)
 }
 
 // WebhookReceiptRepository persists webhook receipt records.
@@ -94,8 +110,19 @@ type WebhookReceiptRepository interface {
 	) error
 }
 
+type WebhookRejectionRepository interface {
+	LogRejection(
+		ctx context.Context,
+		receipt *WebhookReceipt,
+	) error
+}
+
 // GORMWebhookReceiptRepository persists webhook receipts using GORM.
 type GORMWebhookReceiptRepository struct {
+	DB *gorm.DB
+}
+
+type GORMWebhookRejectionRepository struct {
 	DB *gorm.DB
 }
 
@@ -137,7 +164,7 @@ func NewWebhookReceipt(
 		PayloadHash:       event.HashPayload(),
 		ReceivedAt:        recievedAt,
 		ProviderCreatedAt: epochConvertedTime.UTC(),
-		Status:            status,
+		Status:            ReceiptStatusPendingNew,
 	}
 }
 
@@ -172,4 +199,28 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 		}
 		return nil
 	})
+}
+
+func GetClientIP(r *http.Request, trustedProxy bool) (string, error) {
+	peerIP, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return "", fmt.Errorf("parse remote address: %w", err)
+	}
+
+	ip := peerIP
+
+	if trustedProxy {
+		forwarded := r.Header.Get("X-Forwarded-For")
+		if forwarded != "" {
+			// Only safe if Traefik has validated the forwarded chain.
+			ip = strings.TrimSpace(strings.Split(forwarded, ",")[0])
+		}
+	}
+
+	addr, err := netip.ParseAddr(ip)
+	if err != nil {
+		return "", fmt.Errorf("parse client IP: %w", err)
+	}
+
+	return addr.Unmap().String(), nil
 }

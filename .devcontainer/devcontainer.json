@@ -1,4 +1,4 @@
-    {
+{
   "name": "Accord Integration Platform",
   "dockerComposeFile": "compose.yaml",
   "service": "app",
@@ -11,9 +11,11 @@
   ],
   "workspaceFolder": "/workspaces/accord",
   "shutdownAction": "stopCompose",
+  "remoteUser": "vscode",
   "features": {
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "latest"
+      "version": "latest",
+      "installGoTools": true
     },
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
       "moby": false
@@ -30,8 +32,7 @@
     },
     "ghcr.io/nullcoder/devcontainer-features/stripe-cli:1": {}
   },
-  "postCreateCommand": "npm i -g @stripe/cli@latest",
-  "remoteUser": "vscode",
+  "postCreateCommand": "test -x .venv/bin/python || uv venv .venv",
   "containerEnv": {
     "PYTHONUNBUFFERED": "1",
     "PYTHONDONTWRITEBYTECODE": "1",
@@ -74,28 +75,26 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "golang.go",
+        "golang.Go",
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "ms-python.debugpy",
         "charliermarsh.ruff",
-        "ms-azuretools.vscode-docker",
+        "ms-azuretools.vscode-containers",
         "ms-ossdata.vscode-pgsql",
         "redhat.vscode-yaml",
         "task.vscode-task",
-        "lyonnee.vscode-go-pack",
-        "renanbs.better-go-test",
-        "premparihar.gotestexplorer",
-        "windmilleng.vscode-go-autotest",
-        "openai.chatgpt",
-        "sourcery.sourcery",
-        "formulahendry.code-runner"
+        "openai.chatgpt"
       ],
       "settings": {
         "editor.formatOnSave": true,
         "files.insertFinalNewline": true,
         "files.trimTrailingWhitespace": true,
         "[go]": {
-          "editor.defaultFormatter": "golang.go"
+          "editor.defaultFormatter": "golang.Go",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
         },
         "[python]": {
           "editor.defaultFormatter": "charliermarsh.ruff",
@@ -106,7 +105,12 @@
         },
         "go.useLanguageServer": true,
         "go.toolsManagement.autoUpdate": true,
+        "gopls": {
+          "ui.semanticTokens": true
+        },
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
         "python.analysis.typeCheckingMode": "basic",
+        "python.analysis.diagnosticMode": "workspace",
         "files.exclude": {
           "**/__pycache__": true,
           "**/.pytest_cache": true,

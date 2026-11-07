@@ -17,3 +17,14 @@ func NewRepository(dsn string) (*signatures.GORMWebhookReceiptRepository, error)
 	}
 	return &signatures.GORMWebhookReceiptRepository{DB: db}, nil
 }
+
+func NewRejectionLog(dsn string) (*signatures.GORMWebhookRejectionRepository, error){
+	db, err := gorm.Open(
+		postgres.Open(dsn),
+		&gorm.Config{},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("unable to establish connection to DB: %w", err)
+	}
+	return &signatures.GORMWebhookRejectionRepository{DB: db}, nil
+}

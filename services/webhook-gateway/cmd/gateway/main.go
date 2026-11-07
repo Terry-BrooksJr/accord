@@ -33,14 +33,20 @@ func main() {
 		logger.Error("REQUIRED ENV VAR `DATABASE_DSN` NOT SET...Exiting... ")
 		os.Exit(1)
 	}
-	GatewayDBConnection, err := journal.NewRepository(os.Getenv("DATABASE_DSN"))
+	RecieptDBConnection, err := journal.NewRepository(os.Getenv("DATABASE_DSN"))
+	if err != nil {
+		logger.Error(fmt.Sprintf("unable to establish database connection: %v", err))
+		os.Exit(1)
+	}
+	LogDBConnection, err := journal.NewRejectionLog(os.Getenv("DATABASE_DSN"))
 	if err != nil {
 		logger.Error(fmt.Sprintf("unable to establish database connection: %v", err))
 		os.Exit(1)
 	}
 	GatewayMux := http.NewServeMux()
 	stripeHandler, err := webhooks.NewStripeHandler(
-		GatewayDBConnection,
+		RecieptDBConnection,
+		*LogDBConnection,
 		&signatures.StripeVerifier{EndpointSecret: os.Getenv("STRIPE_ENDPOINT_SECRET")},
 		2<<20,
 		logger,

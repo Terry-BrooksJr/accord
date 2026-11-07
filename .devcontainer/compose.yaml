@@ -60,6 +60,8 @@ services:
       POSTGRES_USER: *pg-user
       POSTGRES_PASSWORD: *pg-password
       POSTGRES_DB: *pg-database
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

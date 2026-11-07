@@ -63,5 +63,6 @@
     ],
     "typescript.updateImportsOnFileMove.enabled": "never",
     "javascript.updateImportsOnFileMove.enabled": "never",
-    "python.terminal.useEnvFile": true
+    "python.terminal.useEnvFile": true,
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }

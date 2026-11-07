@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -86,6 +87,18 @@ def run_migrations_online() -> None:
 
 
 if context.is_offline_mode():
+    config = context.config
+    DATABASE_URL = os.getenv("PYTHON_POSTGRES_DB_CONNECTION_STRING")
+    if DATABASE_URL:
+        config.set_main_option("sqlalchemy.url", DATABASE_URL)
+    else:
+        raise ValueError("DATABASE_URL environment variable is not set!")
     run_migrations_offline()
 else:
+    config = context.config
+    DATABASE_URL = os.getenv("PYTHON_POSTGRES_DB_CONNECTION_STRING")
+    if DATABASE_URL:
+        config.set_main_option("sqlalchemy.url", DATABASE_URL)
+    else:
+        raise ValueError("DATABASE_URL environment variable is not set!")
     run_migrations_online()
