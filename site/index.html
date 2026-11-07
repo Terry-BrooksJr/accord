@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accord Integrations Platform · Different systems. A common path.</title>
+<meta name="description" content="Accord is a personal engineering project: an integrations platform for webhooks, idempotency, reconciliation and recovery between independent systems.">
+<meta name="theme-color" content="#0A2540">
+<link rel="canonical" href="https://accord.watch/">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Accord Integrations Platform">
+<meta property="og:description" content="Accord is a personal engineering project: an integrations platform for webhooks, idempotency, reconciliation and recovery between independent systems.">
+<meta property="og:url" content="https://accord.watch/">
+<meta property="og:image" content="https://accord.watch/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F5F7FA;-webkit-font-smoothing:antialiased}
+a{color:#1A62C8}a:hover{color:#0A2540}
+.nav-link{color:#0A2540;text-decoration:none}
+.nav-link:hover{color:#1A62C8}
+.btn-primary:hover{background:#163A5F}
+.btn-secondary:hover{border-color:#0A2540}
+.skip-link{position:absolute;left:16px;top:-48px;padding:10px 16px;background:#0A2540;color:#FFFFFF;border-radius:8px;z-index:10}
+.skip-link:focus{top:16px;color:#FFFFFF}
+img{max-width:100%}
+@media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div style="font-family: Inter, system-ui, sans-serif; color: #0A2540; background: #F5F7FA; font-size: 16px; line-height: 1.5; min-width: 0">
+
+<!-- NAV -->
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E8EF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" style="display: block; line-height: 0" aria-label="Accord Integrations Platform, back to top">
+<img src="assets/accord-horizontal.png" alt="Accord Integrations Platform" style="width: 216px; height: auto; padding: 10px 0">
+</a>
+<nav aria-label="Page sections" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; font-size: 15px; font-weight: 500">
+<a class="nav-link" href="#overview" style="padding: 10px 0">Overview</a>
+<a class="nav-link" href="#capabilities" style="padding: 10px 0">Capabilities</a>
+<a class="nav-link" href="#challenges" style="padding: 10px 0">Challenges</a>
+<a class="nav-link" href="#development" style="padding: 10px 0">Development</a>
+<a class="nav-link" href="https://github.com/Terry-BrooksJr/accord" style="padding: 10px 0; display: inline-flex; align-items: center; gap: 6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>GitHub</a>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #EAF7F5; color: #0B6B61; font-size: 13px; font-weight: 600">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+Personal project · In development
+</span>
+</nav>
+</div>
+</header>
+
+<main id="main">
+<!-- HERO -->
+<section id="top" style="position: relative; overflow: hidden; background: #FFFFFF">
+<svg viewBox="0 0 1440 640" preserveAspectRatio="none" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none">
+<defs>
+<linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#2F80ED" stop-opacity="0"></stop>
+<stop offset="0.45" stop-color="#2F80ED" stop-opacity="0.16"></stop>
+<stop offset="1" stop-color="#14B8A6" stop-opacity="0.22"></stop>
+</linearGradient>
+</defs>
+<path d="M-40 560 C 260 470, 420 620, 720 520 S 1180 300, 1480 360" fill="none" stroke="url(#ribbon)" stroke-width="56" stroke-linecap="round"></path>
+<path d="M-40 610 C 300 520, 480 660, 780 570 S 1220 380, 1480 420" fill="none" stroke="url(#ribbon)" stroke-width="2"></path>
+</svg>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; padding: 88px 24px 96px; display: flex; flex-wrap: wrap; align-items: center; gap: 56px">
+<div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #425466">Integrations platform · A personal engineering project</p>
+<h1 style="margin: 0; font-size: clamp(36px, 5vw, 56px); line-height: 1.08; font-weight: 700; letter-spacing: -0.02em; color: #0A2540">Keeping independent systems in agreement, one event at a time.</h1>
+<p style="margin: 0; font-size: 19px; line-height: 1.6; color: #425466; max-width: 560px">Accord connects external APIs, receives their webhooks, and works toward data that stays consistent, observable and recoverable, even when providers retry, fail or deliver events out of order.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 8px">
+<a class="btn-primary" href="#overview" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 10px; background: #0A2540; color: #FFFFFF; font-weight: 600; text-decoration: none; box-sizing: border-box">Explore the project
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+</a>
+<a class="btn-secondary" href="#development" style="display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 10px; border: 1px solid #C9D3DF; background: #FFFFFF; color: #0A2540; font-weight: 600; text-decoration: none; box-sizing: border-box">See what’s being built</a>
+</div>
+<p style="margin: 0; font-size: 14px; color: #425466">Follow the build <a href="https://github.com/Terry-BrooksJr/accord" style="font-weight: 600">on GitHub</a>. Not a commercial product. Accord is a learning and portfolio project. All of its code is written by hand; AI is used only as a sounding board for design and feedback.</p>
+</div>
+
+<!-- Delivery log illustration -->
+<figure style="flex: 1 1 420px; min-width: 0; margin: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; box-shadow: 0 1px 2px rgba(10,37,64,0.06), 0 12px 32px rgba(10,37,64,0.08); overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #E3E8EF; background: #F5F7FA">
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="assets/accord-mark-small.png" alt="" style="width: 32px; height: 32px; object-fit: contain">
+<span style="font-weight: 600; font-size: 15px">Webhook delivery log</span>
+</div>
+<span style="font-size: 12px; font-weight: 500; color: #425466">Illustrative sample</span>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 440px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; font-variant-numeric: tabular-nums">
+<div style="display: grid; grid-template-columns: 92px 1fr 128px; gap: 12px; padding: 10px 18px; color: #425466; font-family: Inter, system-ui, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; border-bottom: 1px solid #EEF1F5">
+<span>Received</span><span>Provider · event</span><span>Outcome</span>
+</div>
+<div style="display: grid; grid-template-columns: 92px 1fr 128px; gap: 12px; padding: 14px 18px; align-items: start; border-bottom: 1px solid #EEF1F5">
+<span style="color: #425466">14:02:11Z</span>
+<span style="min-width: 0"><span style="display: block; color: #0A2540">stripe · payment_intent.succeeded</span><span style="display: block; color: #425466; font-size: 12px">evt_example_7f3a · verified</span></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #0B6B61; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 12 3 3 5-6"></path></svg>ACCEPTED</span>
+</div>
+<div style="display: grid; grid-template-columns: 92px 1fr 128px; gap: 12px; padding: 14px 18px; align-items: start; border-bottom: 1px solid #EEF1F5">
+<span style="color: #425466">14:02:14Z</span>
+<span style="min-width: 0"><span style="display: block; color: #0A2540">stripe · payment_intent.succeeded</span><span style="display: block; color: #425466; font-size: 12px">evt_example_7f3a · retry, recorded once more</span></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>DUPLICATE</span>
+</div>
+<div style="display: grid; grid-template-columns: 92px 1fr 128px; gap: 12px; padding: 14px 18px; align-items: start">
+<span style="color: #425466">14:03:40Z</span>
+<span style="min-width: 0"><span style="display: block; color: #0A2540">unknown sender</span><span style="display: block; color: #425466; font-size: 12px">signature invalid · body hashed, sanitized</span></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #B42318; font-family: Inter, system-ui, sans-serif; font-weight: 600; font-size: 12px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>REJECTED</span>
+</div>
+</div>
+</div>
+<figcaption style="padding: 12px 18px; border-top: 1px solid #E3E8EF; font-size: 13px; color: #425466; background: #F5F7FA">Every request becomes its own row, duplicates and rejections included, so the log is a true account of what arrived.</figcaption>
+</figure>
+</div>
+</section>
+
+<!-- OVERVIEW -->
+<section id="overview" style="max-width: 1200px; margin: 0 auto; padding: 104px 24px 96px; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; gap: 56px">
+<div style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #425466">Project overview</p>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.015em">A real integration platform, built to learn the hard parts properly.</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #425466">Accord is a passion project. It exists to build practical, production-minded depth in the work that sits between systems: calling external APIs, receiving their events, and making sure both sides end up telling the same story.</p>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #425466">Rather than a toy demo, it’s designed the way a serious integration service would be, with signature verification, a durable delivery log, idempotent processing and a clear plan for recovery and reconciliation. Every decision is a chance to practice the trade-offs for real.</p>
+</div>
+<div style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; align-self: flex-start">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Skills it’s built to strengthen</h3>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 18px">
+<li style="display: flex; gap: 14px; align-items: flex-start"><span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><path d="M8 12h8"></path></svg></span><span><strong style="display: block; font-weight: 600">API integrations</strong><span style="color: #425466; font-size: 15px">Authentication, signatures, rate limits and the quirks of each provider.</span></span></li>
+<li style="display: flex; gap: 14px; align-items: flex-start"><span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5"></path><path d="M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"></path></svg></span><span><strong style="display: block; font-weight: 600">Backend engineering</strong><span style="color: #425466; font-size: 15px">Go services, PostgreSQL and clean, testable boundaries.</span></span></li>
+<li style="display: flex; gap: 14px; align-items: flex-start"><span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="6" r="2.5"></circle><circle cx="19" cy="6" r="2.5"></circle><circle cx="12" cy="18" r="2.5"></circle><path d="M7.5 6h9"></path><path d="M6.3 8.2l4.4 7.6"></path><path d="M17.7 8.2l-4.4 7.6"></path></svg></span><span><strong style="display: block; font-weight: 600">Distributed systems</strong><span style="color: #425466; font-size: 15px">Consistency, ordering and failure between services that share no state.</span></span></li>
+<li style="display: flex; gap: 14px; align-items: flex-start"><span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 4v5h-5"></path></svg></span><span><strong style="display: block; font-weight: 600">DevOps</strong><span style="color: #425466; font-size: 15px">Containers, migrations, deployment and the tooling to watch it all run.</span></span></li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- CAPABILITIES -->
+<section id="capabilities" style="background: #FFFFFF; border-top: 1px solid #E3E8EF; border-bottom: 1px solid #E3E8EF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 104px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px">
+<div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #425466">Key capabilities</p>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.015em">What Accord is designed to do</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #425466; max-width: 640px">Each capability is marked honestly with where it stands today. The foundation comes first; the rest is built on top of it.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; font-weight: 600">
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Building now</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #425466"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px">
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Building now</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Webhook processing</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">A Go gateway that accepts, verifies and persists provider events, recording accepted, duplicate and rejected deliveries alike.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.3 8 9 4.6-.7 8-4 8-9V6z"></path><path d="M9 12h6"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Building now</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Idempotency</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Retries are expected, not feared. The first delivery of an event is marked original; later copies are logged as duplicates and not processed twice.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF2FD; color: #1A62C8; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17H7A5 5 0 0 1 7 7h2"></path><path d="M15 7h2a5 5 0 1 1 0 10h-2"></path><path d="M8 12h8"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Building now</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">External API integrations</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Stripe is the first provider. Plaid, Shippo and Zendesk follow, each bringing its own signatures, payloads and edge cases.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF7F5; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Event-driven workflows</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Verified events trigger downstream steps, like a payment leading to a shipment, without tight coupling between services.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF7F5; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"></path><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Automated reconciliation</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Compare what Accord recorded with what each provider reports, then flag records as MATCHED or NEEDS REVIEW.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF7F5; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M3 21v-5h5"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Failure recovery</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Scheduled retries with backoff, safe replay from the delivery log, and a clear next step whenever something can’t complete.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF7F5; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4 3 8l4 4"></path><path d="M3 8h14"></path><path d="m17 20 4-4-4-4"></path><path d="M21 16H7"></path></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Data synchronization</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Keep a canonical record aligned with each provider’s view, using canonical and correlation IDs to tie related events together.</p>
+</article>
+
+<article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #EAF7F5; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Observability</h3>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Structured logs, metrics and traces that answer the operator’s real question: what happened to this event, and what happens next?</p>
+</article>
+
+</div>
+</div>
+</section>
+
+<!-- CHALLENGES -->
+<section id="challenges" style="background: #0A2540; color: #FFFFFF">
+<div style="max-width: 1200px; margin: 0 auto; padding: 104px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 56px">
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #5EEAD4">Engineering challenges</p>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.015em; color: #FFFFFF">The request is the easy part. Agreement is the hard part.</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #C7D3E0">Independent systems don’t share memory, clocks or transactions. Accord is a place to work through what it takes to keep them consistent anyway.</p>
+</div>
+
+<!-- Flow diagram -->
+<div role="img" aria-label="Flow: a provider sends an event to the Accord gateway, which verifies and records it in the delivery log; planned workflows and reconciliation build on that log." style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px">
+<div style="flex: 1 1 200px; min-width: 0; border: 1px solid #24486D; border-radius: 12px; padding: 20px; background: #0E2E4E; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #9FB3C8">1 · Provider</span>
+<strong style="font-weight: 600; font-size: 17px">Sends an event</strong>
+<span style="font-size: 14px; color: #C7D3E0">Stripe today; Plaid, Shippo and Zendesk next.</span>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #5EEAD4; padding: 0 2px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></div>
+<div style="flex: 1 1 200px; min-width: 0; border: 1px solid #2F80ED; border-radius: 12px; padding: 20px; background: #0F3358; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8EC1FF">2 · Accord gateway</span>
+<strong style="font-weight: 600; font-size: 17px">Verifies and stamps</strong>
+<span style="font-size: 14px; color: #C7D3E0">Checks the signature, records received_at in UTC.</span>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #5EEAD4; padding: 0 2px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></div>
+<div style="flex: 1 1 200px; min-width: 0; border: 1px solid #14B8A6; border-radius: 12px; padding: 20px; background: #0C3343; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5EEAD4">3 · Delivery log</span>
+<strong style="font-weight: 600; font-size: 17px">Records every request</strong>
+<span style="font-size: 14px; color: #C7D3E0">One Postgres row per delivery, flagged original, duplicate or rejected.</span>
+</div>
+<div aria-hidden="true" style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #5EEAD4; padding: 0 2px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></div>
+<div style="flex: 1 1 200px; min-width: 0; border: 1px dashed #4A6A8A; border-radius: 12px; padding: 20px; background: transparent; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #9FB3C8">4 · Planned</span>
+<strong style="font-weight: 600; font-size: 17px">Workflows and reconciliation</strong>
+<span style="font-size: 14px; color: #C7D3E0">Downstream actions, retries and checks against each provider.</span>
+</div>
+</div>
+
+<!-- Challenge list -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1px; background: #24486D; border: 1px solid #24486D; border-radius: 12px; overflow: hidden">
+<div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Duplicate deliveries</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">Providers retry. How do you record every copy for an honest audit trail, yet act on each event exactly once, even when two copies race?</p>
+</div>
+<div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Forged and malformed requests</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">Rejected requests are logged too, sanitized first, and kept out of deduplication so no one can pre-claim a real event ID.</p>
+</div>
+<div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Out-of-order events</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">An update can arrive before the create it depends on. Ordering has to come from the data, not the arrival time.</p>
+</div>
+<div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Partial failures</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">The payment succeeded but the shipment call timed out. Recovery means knowing exactly which steps finished and which to retry.</p>
+</div>
+<div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Drift between systems</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">Even with careful processing, records diverge over time. Reconciliation finds the gaps and makes them visible.</p>
+</div>
+<div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Knowing what happened</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">When something goes wrong at 2 a.m., the system should explain itself plainly and point to a useful next step.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- DEVELOPMENT -->
+<section id="development" style="max-width: 1200px; margin: 0 auto; padding: 104px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 48px">
+<div style="display: flex; flex-direction: column; gap: 16px; max-width: 760px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #425466">Ongoing development</p>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; font-weight: 700; letter-spacing: -0.015em">Built in stages, with the foundation first</h2>
+<p style="margin: 0; font-size: 17px; line-height: 1.7; color: #425466">Accord grows one solid layer at a time. Each stage ships only when the one beneath it is dependable.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 48px">
+<ol style="flex: 1 1 560px; min-width: 0; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+
+<li style="display: flex; gap: 20px">
+<div style="display: flex; flex-direction: column; align-items: center; flex: none">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: #2F80ED; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px">1</span>
+<span style="flex: 1; width: 2px; background: #C9D3DF; min-height: 24px"></span>
+</div>
+<div style="padding-bottom: 32px; display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Webhook gateway MVP</h3>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: #EAF2FD; color: #1A62C8; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>In progress</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">A Go service that accepts, verifies and persists Stripe event webhooks, with testable interfaces for the verifier and repository.</p>
+</div>
+</li>
+
+<li style="display: flex; gap: 20px">
+<div style="display: flex; flex-direction: column; align-items: center; flex: none">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 2px solid #2F80ED; color: #1A62C8; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; box-sizing: border-box">2</span>
+<span style="flex: 1; width: 2px; background: #C9D3DF; min-height: 24px"></span>
+</div>
+<div style="padding-bottom: 32px; display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Duplicates and rejections</h3>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>Up next</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">Record retried deliveries as duplicates and rejected requests as sanitized rows, so the log accounts for every request received.</p>
+</div>
+</li>
+
+<li style="display: flex; gap: 20px">
+<div style="display: flex; flex-direction: column; align-items: center; flex: none">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 2px dashed #8494A7; color: #425466; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; box-sizing: border-box">3</span>
+<span style="flex: 1; width: 2px; background: #C9D3DF; min-height: 24px"></span>
+</div>
+<div style="padding-bottom: 32px; display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">More providers</h3>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">Plaid, Shippo and Zendesk, each verified and normalized into the same delivery log.</p>
+</div>
+</li>
+
+<li style="display: flex; gap: 20px">
+<div style="display: flex; flex-direction: column; align-items: center; flex: none">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: #FFFFFF; border: 2px dashed #8494A7; color: #425466; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; box-sizing: border-box">4</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600">Workflows, recovery and reconciliation</h3>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>Planned</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">Event-driven workflows, retries and replay, provider reconciliation, and the dashboards to observe it all.</p>
+</div>
+</li>
+</ol>
+
+<aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+<h3 style="margin: 0; font-size: 16px; font-weight: 600">Under the hood</h3>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
+<li style="padding: 6px 12px; border-radius: 8px; background: #F5F7FA; border: 1px solid #E3E8EF; font-size: 14px; font-weight: 500">Go</li>
+<li style="padding: 6px 12px; border-radius: 8px; background: #F5F7FA; border: 1px solid #E3E8EF; font-size: 14px; font-weight: 500">PostgreSQL</li>
+<li style="padding: 6px 12px; border-radius: 8px; background: #F5F7FA; border: 1px solid #E3E8EF; font-size: 14px; font-weight: 500">GORM</li>
+<li style="padding: 6px 12px; border-radius: 8px; background: #F5F7FA; border: 1px solid #E3E8EF; font-size: 14px; font-weight: 500">Alembic migrations</li>
+<li style="padding: 6px 12px; border-radius: 8px; background: #F5F7FA; border: 1px solid #E3E8EF; font-size: 14px; font-weight: 500">Docker dev containers</li>
+<li style="padding: 6px 12px; border-radius: 8px; background: #F5F7FA; border: 1px solid #E3E8EF; font-size: 14px; font-weight: 500">Stripe webhooks</li>
+</ul>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
+<h3 style="margin: 0; font-size: 16px; font-weight: 600">Design principles</h3>
+<ul style="margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: #425466; line-height: 1.55">
+<li>Every request is recorded, never silently dropped.</li>
+<li>Timestamps are stored in UTC, converted at the boundary.</li>
+<li>Schema lives in migrations; the app only reads and writes.</li>
+<li>Dependencies are injected so every piece can be tested.</li>
+</ul>
+</div>
+</aside>
+</div>
+
+<!-- How it's built -->
+<div style="background: #FFFFFF; border: 1px solid #E3E8EF; border-radius: 12px; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 8px; max-width: 760px">
+<h3 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">How Accord is built</h3>
+<p style="margin: 0; font-size: 16px; line-height: 1.65; color: #425466">The point of Accord is to build skill, so the line between human work and AI help is drawn deliberately.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px">
+<div style="display: flex; gap: 16px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #F5F7FA; border: 1px solid #E3E8EF">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 10px; background: #0A2540; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"></path><path d="m8 6-6 6 6 6"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<strong style="font-size: 17px; font-weight: 600">Every line of code, written by hand</strong>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">All of Accord’s platform code, from the Go handlers and repositories to the database migrations and infrastructure, is written by Terry. AI does not write code for this project.</p>
+</div>
+</div>
+<div style="display: flex; gap: 16px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #F5F7FA; border: 1px solid #E3E8EF">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 10px; background: #EAF7F5; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M8 9h8"></path><path d="M8 13h5"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<strong style="font-size: 17px; font-weight: 600">AI as a sounding board</strong>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">AI is used to talk through design trade-offs, pressure-test architecture decisions and give feedback on code Terry has written. It explains and reviews; the implementation is always his.</p>
+</div>
+</div>
+</div>
+<div style="display: flex; gap: 16px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #FFF8EB; border: 1px solid #F3D9A4">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 10px; background: #FFFFFF; color: #8A5300; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"></path><path d="M5 7h14"></path><path d="m5 7-3 7a4 4 0 0 0 6 0z"></path><path d="m19 7-3 7a4 4 0 0 0 6 0z"></path><path d="M8 21h8"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<strong style="font-size: 17px; font-weight: 600; color: #0A2540">Full transparency: keeping myself honest</strong>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #4A3A1A">All of the platform’s code is mine. The one exception is this temporary landing page, which was designed and built with AI assistance as a placeholder until the real site is written by hand. Scout’s honor, the rest is me.</p>
+</div>
+</div>
+</div>
+
+<!-- Personal project notice -->
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; padding: 28px 32px; border-radius: 12px; background: #EAF7F5; border: 1px solid #A7E3DA">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 10px; background: #FFFFFF; color: #0B6B61; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg></span>
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #0A2540">An evolving personal project, not a product</h3>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #24435F">Accord is a learning and portfolio project. There are no accounts, pricing or support, and features change as the work progresses. This page is a temporary home while the platform takes shape.</p>
+</div>
+</div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="background: #0B2B45; color: #C7D3E0">
+<div style="max-width: 1200px; margin: 0 auto; padding: 56px 24px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px">
+<img src="assets/accord-monochrome-light.png" alt="Accord Integrations Platform" style="width: 280px; height: auto; display: block">
+<div style="display: flex; flex-direction: column; gap: 6px; text-align: left; max-width: 520px">
+<p style="margin: 0; font-size: 15px; color: #FFFFFF; font-weight: 600">Different systems. A common path.</p>
+<p style="margin: 0; font-size: 14px; line-height: 1.6">A personal engineering project by Terry A. Brooks Jr., built to practice API integrations, backend engineering, distributed systems and DevOps. All platform code is hand-written; AI serves only as a sounding board for design and feedback.</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.6; color: #C7D3E0"><strong style="color: #FFFFFF; font-weight: 600">Full transparency:</strong> this temporary landing page was designed with AI assistance. Scout’s honor, the rest is me.</p>
+<p style="margin: 0; font-size: 13px; color: #9FB3C8">© 2026 · <a href="https://accord.watch" style="color: #8EC1FF; font-weight: 500">accord.watch</a> · <a href="https://github.com/Terry-BrooksJr/accord" style="color: #8EC1FF; font-weight: 500">Source on GitHub</a> · Not a commercial product</p>
+</div>
+</div>
+</footer>
+
+</div>
+</body>
+</html>
