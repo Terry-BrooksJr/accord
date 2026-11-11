@@ -18,7 +18,7 @@ func NewRepository(dsn string) (*signatures.GORMWebhookReceiptRepository, error)
 	return &signatures.GORMWebhookReceiptRepository{DB: db}, nil
 }
 
-func NewRejectionLog(dsn string) (*signatures.GORMWebhookRejectionRepository, error){
+func NewRejectionLog(dsn string) (*signatures.GORMWebhookRejectionRepository, error) {
 	db, err := gorm.Open(
 		postgres.Open(dsn),
 		&gorm.Config{},

@@ -1,9 +1,8 @@
 package signatures
 
 import (
+	"accord/services/webhook-gateway/internal/signatures"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -24,13 +23,6 @@ type StripeVerifier struct {
 	EventData      stripe.Event
 }
 
-// HashPayload returns the SHA-256 hash of the verified event's raw payload
-// encoded as a hexadecimal string.
-func (ve *VerifiedEvent) HashPayload() string {
-	sum := sha256.Sum256(ve.RawPayload)
-	return hex.EncodeToString(sum[:])
-}
-
 // Verify validates the Stripe webhook signature using the Stripe-Signature
 // header, the raw request body, and the configured endpoint secret.
 // It returns a VerifiedEvent containing the event ID, type, original payload,
@@ -40,23 +32,23 @@ func (sv *StripeVerifier) Verify(
 	ctx context.Context,
 	headers http.Header,
 	body []byte,
-) (VerifiedEvent, error) {
+) (signatures.VerifiedEvent, error) {
 	signature := headers.Get("Stripe-Signature")
 
 	if signature == "" {
 		slog.ErrorContext(ctx, "stripe-signature no in header")
-		return VerifiedEvent{}, ErrMissingStripeSignature
+		return signatures.VerifiedEvent{}, ErrMissingStripeSignature
 	}
 	fmt.Print(signature) //TODO: Remove me LATER for testing ONLY
 	eventData, err := webhook.ConstructEventWithOptions(body, signature, sv.EndpointSecret, webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
 	if err != nil {
 		slog.Error("Unable to verify Stripe webhook", "err", err)
-		return VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
+		return signatures.VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
 	}
 	slog.Info("incoming request verifed")
-	event := VerifiedEvent{
+	event := signatures.VerifiedEvent{
 		CorrelationID:   uuid.New(),
-		Provider:        Stripe,
+		Provider:        signatures.Stripe,
 		ProviderEventID: eventData.ID,
 		EventType:       string(eventData.Type),
 		ReceivedAt:      time.Now(),

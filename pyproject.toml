@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.1",
+    "black>=26.10.1",
     "dotenv>=0.9.9",
     "psycopg>=3.3.8",
     "sqlmodel>=0.0.48",
@@ -37,4 +38,9 @@ exclude = [
 
 fixable = ["ALL"]
 unfixable = []
+
+[dependency-groups]
+dev = [
+    "isort>=9.0.2",
+]
 

@@ -20,6 +20,30 @@ tasks:
     cmds:
       - task --list
 
+  # Database Operations
+  db:_migrations:
+    interactive: true
+    desc: Generate an Alembic migration from schema changes
+    internal: true
+    env:
+      MIGRATION_MESSAGE: "{{.MIGRATION_MESSAGE}}"
+    cmds:
+      - .venv/bin/alembic -c database/postgresql/alembic.ini revision --autogenerate -m "$MIGRATION_MESSAGE"
+    generates:
+      - "database/postgresql/alembic/versions/????_??_??_????-????????????_*.py"
+
+  db:migrate:
+    desc: Generate and apply an Alembic migration
+    interactive: true
+    requires:
+      vars: [MIGRATION_NOTE]
+    cmds:
+      - task: db:_migrations
+        vars:
+          MIGRATION_MESSAGE: "{{.MIGRATION_NOTE}}"
+      - .venv/bin/alembic -c database/postgresql/alembic.ini upgrade head
+    status:
+      - .venv/bin/alembic -c database/postgresql/alembic.ini check
   # Local infrastructure
 
   infra:validate:
@@ -139,7 +163,7 @@ tasks:
     cmds:
       - for: { var: PYTHON_DIRS }
         cmd: >-
-          uv run `` ruff check "{{.ITEM}}"
+          uv run ruff check "{{.ITEM}}"
           && uv run  ruff format --check "{{.ITEM}}"
 
   # Tests

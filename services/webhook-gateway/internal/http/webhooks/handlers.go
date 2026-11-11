@@ -2,6 +2,7 @@ package webhooks
 
 import (
 	"accord/services/webhook-gateway/internal/signatures"
+	stripeprovider "accord/services/webhook-gateway/internal/signatures/providers/stripe"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -36,7 +37,7 @@ func NewStripeHandler(
 	}
 	return &StripeHandler{
 		Repo:         repo,
-		RejectionLog:  rejectionLog,
+		RejectionLog: rejectionLog,
 		Verifier:     verifier,
 		MaxBodyBytes: maxBodyBytes,
 		Logger:       logger,
@@ -101,7 +102,7 @@ func (sh *StripeHandler) CatchWebhook(
 	if err != nil {
 		var rejectionReason signatures.RejectionReasonType
 		var rejectionDetails string
-		if errors.Is(err, signatures.ErrMissingStripeSignature) {
+		if errors.Is(err, stripeprovider.ErrMissingStripeSignature) {
 			rejectionReason = signatures.RejectionReasonTypeMissingSignature
 			rejectionDetails = "Incoming Request failed to provide Stripe Signature in HTTP Headers"
 		}

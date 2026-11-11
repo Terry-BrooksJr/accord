@@ -2,6 +2,8 @@ package signatures
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -124,6 +126,13 @@ type GORMWebhookReceiptRepository struct {
 
 type GORMWebhookRejectionRepository struct {
 	DB *gorm.DB
+}
+
+// HashPayload returns the SHA-256 hash of the verified event's raw payload
+// encoded as a hexadecimal string.
+func (ve *VerifiedEvent) HashPayload() string {
+	sum := sha256.Sum256(ve.RawPayload)
+	return hex.EncodeToString(sum[:])
 }
 
 // ProcessedReceipt contains the identifiers and processing metadata for a webhook receipt.

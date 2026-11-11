@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"log/slog"
@@ -79,46 +78,6 @@ const (
 
 	RejectionReasonTypeBodyReadFailure RejectionReasonType = "UNABLE_TO_PARSE"
 )
-
-func (sh *StripeVerifier) CaptureRejection(
-	body []byte,
-	r http.Request,
-	timeReceived time.Time,
-	ctx context.Context,
-	correlationID uuid.UUID,
-	reasonRejected RejectionReasonType,
-	details string,
-) (WebhookRejection, error) {
-
-	if len(body) > MaxStoredPayloadBytes {
-		slog.Error("rejected http request body over rejection limits. discarding the body.")
-		details += fmt.Sprintf("Payload was over the rejection payload retention amount of %d bytes", MaxStoredPayloadBytes)
-
-		return NewWebhookRejection(
-			r,
-			body,
-			timeReceived,
-			ctx,
-			correlationID,
-			reasonRejected,
-			false,
-			nil,
-			&details,
-		), nil
-	}
-	return NewWebhookRejection(
-		r,
-		body,
-		timeReceived,
-		ctx,
-		correlationID,
-		reasonRejected,
-		false,
-		body,
-		&details,
-	), nil
-
-}
 
 type WebhookRejection struct {
 	ID            uuid.UUID `gorm:"type:uuid;primaryKey"`

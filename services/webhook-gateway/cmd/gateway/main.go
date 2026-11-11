@@ -3,7 +3,7 @@ package main
 import (
 	"accord/services/webhook-gateway/internal/http/webhooks"
 	"accord/services/webhook-gateway/internal/journal"
-	"accord/services/webhook-gateway/internal/signatures"
+	stripeprovider "accord/services/webhook-gateway/internal/signatures/providers/stripe"
 	"fmt"
 	"github.com/joho/godotenv"
 	"log"
@@ -47,7 +47,7 @@ func main() {
 	stripeHandler, err := webhooks.NewStripeHandler(
 		RecieptDBConnection,
 		*LogDBConnection,
-		&signatures.StripeVerifier{EndpointSecret: os.Getenv("STRIPE_ENDPOINT_SECRET")},
+		&stripeprovider.StripeVerifier{EndpointSecret: os.Getenv("STRIPE_ENDPOINT_SECRET")},
 		2<<20,
 		logger,
 	)

@@ -2,8 +2,11 @@ import os
 from logging.config import fileConfig
 
 from alembic import context
-from api.schemas.models import WebhookReceipt
 from sqlalchemy import engine_from_config, pool
+
+from database.postgresql.schemas.models import (
+    SQLModel,
+)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,7 +21,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = WebhookReceipt.metadata
+target_metadata = SQLModel.metadata
+print(sorted(target_metadata.tables))
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -45,9 +49,13 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    DATABASE_URL = os.getenv("PYTHON_POSTGRES_DB_CONNECTION_STRING")
+    if DATABASE_URL:
+        config.set_main_option("sqlalchemy.url", DATABASE_URL)
+    else:
+        raise ValueError("DATABASE_URL environment variable is not set!")
     context.configure(
-        url=url,
+        url=DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
