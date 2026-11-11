@@ -1,6 +1,7 @@
 package main
 
 import (
+	"accord/services/webhook-gateway/internal/http/utility"
 	"accord/services/webhook-gateway/internal/http/webhooks"
 	"accord/services/webhook-gateway/internal/journal"
 	stripeprovider "accord/services/webhook-gateway/internal/signatures/providers/stripe"
@@ -56,6 +57,7 @@ func main() {
 		os.Exit(1)
 	}
 	GatewayMux.HandleFunc("POST /v1/stripe", stripeHandler.CatchWebhook)
+	GatewayMux.HandleFunc("GET /v1/health", utility.StatusHandler)
 
 	log.Println("Server starting on :8080...")
 	if err := http.ListenAndServe(":8080", GatewayMux); err != nil {
