@@ -1,30 +1,26 @@
 package signatures
 
 import (
+	"accord/services/webhook-gateway/internal/signatures"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/stripe/stripe-go/v87"
+	"github.com/stripe/stripe-go/v87/webhook"
 	"log/slog"
 	"net/http"
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/stripe/stripe-go/v87/webhook"
 )
+
+var ErrMissingStripeSignature = errors.New("missing stripe signature")
 
 // StripeVerifier verifies Stripe webhook signatures.
 type StripeVerifier struct {
 	// EndpointSecret is the signing secret for the Stripe webhook endpoint.
 	EndpointSecret string
-}
-
-// HashPayload returns the SHA-256 hash of the verified event's raw payload
-// encoded as a hexadecimal string.
-func (ve *VerifiedEvent) HashPayload() string {
-	sum := sha256.Sum256(ve.RawPayload)
-	return hex.EncodeToString(sum[:])
+	EventData      stripe.Event
 }
 
 // Verify validates the Stripe webhook signature using the Stripe-Signature
@@ -36,16 +32,23 @@ func (sv *StripeVerifier) Verify(
 	ctx context.Context,
 	headers http.Header,
 	body []byte,
-) (VerifiedEvent, error) {
+) (signatures.VerifiedEvent, error) {
 	signature := headers.Get("Stripe-Signature")
-	eventData, err := webhook.ConstructEvent(body, signature, sv.EndpointSecret)
+
+	if signature == "" {
+		slog.ErrorContext(ctx, "stripe-signature no in header")
+		return signatures.VerifiedEvent{}, ErrMissingStripeSignature
+	}
+	fmt.Print(signature) //TODO: Remove me LATER for testing ONLY
+	eventData, err := webhook.ConstructEventWithOptions(body, signature, sv.EndpointSecret, webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
 	if err != nil {
 		slog.Error("Unable to verify Stripe webhook", "err", err)
-		return VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
+		return signatures.VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
 	}
-	event := VerifiedEvent{
+	slog.Info("incoming request verifed")
+	event := signatures.VerifiedEvent{
 		CorrelationID:   uuid.New(),
-		Provider:        1,
+		Provider:        signatures.Stripe,
 		ProviderEventID: eventData.ID,
 		EventType:       string(eventData.Type),
 		ReceivedAt:      time.Now(),

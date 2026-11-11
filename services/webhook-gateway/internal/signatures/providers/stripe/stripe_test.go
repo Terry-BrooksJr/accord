@@ -1,15 +1,15 @@
 package signatures
 
 import (
+	"accord/services/webhook-gateway/internal/signatures"
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/stripe/stripe-go/v87"
+	"github.com/stripe/stripe-go/v87/webhook"
 	"net/http"
 	"testing"
 	"time"
-
-	"github.com/stripe/stripe-go/v87"
-	"github.com/stripe/stripe-go/v87/webhook"
 )
 
 // TestStripeVerifierVerify is the Happy Path Test for the StripeVerifer Verify Reciever Function.
@@ -202,7 +202,7 @@ func TestVerifiedEvent_HashPayload(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ve := VerifiedEvent{RawPayload: tt.payload}
+			ve := signatures.VerifiedEvent{RawPayload: tt.payload}
 			got := ve.HashPayload()
 			if got != tt.want {
 				t.Errorf("HashPayload() = %v, want %v", got, tt.want)

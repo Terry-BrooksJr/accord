@@ -37,7 +37,7 @@ services:
       PGUSER: *pg-user
       PGPASSWORD: *pg-password
       PGDATABASE: *pg-database
-      DATABASE_URL: postgres://accord:accord_dev_password@postgres:5432/accord_dev?sslmode=disable
+      DATABASE_URL: postgres://accord:accord_dev_password@postgres:5432/accord?sslmode=disable
       CLICKHOUSE_HOST: clickhouse
       CLICKHOUSE_HTTP_PORT: "8123"
       CLICKHOUSE_NATIVE_PORT: "9000"
@@ -60,6 +60,8 @@ services:
       POSTGRES_USER: *pg-user
       POSTGRES_PASSWORD: *pg-password
       POSTGRES_DB: *pg-database
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
