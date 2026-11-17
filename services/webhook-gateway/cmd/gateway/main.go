@@ -47,7 +47,7 @@ func main() {
 	GatewayMux := http.NewServeMux()
 	stripeHandler, err := webhooks.NewStripeHandler(
 		RecieptDBConnection,
-		*LogDBConnection,
+		LogDBConnection,
 		&stripeprovider.StripeVerifier{EndpointSecret: os.Getenv("STRIPE_ENDPOINT_SECRET")},
 		2<<20,
 		logger,

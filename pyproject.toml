@@ -36,11 +36,11 @@ exclude = [
     "dist",
 ]
 
-fixable = ["ALL"]
-unfixable = []
-
 [dependency-groups]
 dev = [
     "isort>=9.0.2",
 ]
 
+[tool.ruff.lint]
+fixable = ["ALL"]
+unfixable = []

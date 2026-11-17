@@ -79,11 +79,11 @@ type WebhookReceipt struct {
 	ProviderEventID   *string         `gorm:"index"`
 	EventType         string          `gorm:"not null"`
 	Payload           json.RawMessage `gorm:"type:jsonb;not null"`
-	PayloadHash       string          `gorm:"not null"`
-	ReceivedAt        time.Time       `gorm:"not null"`
-	ProviderCreatedAt time.Time       `gorm:"not null"`
-	Status            ReceiptStatus   `gorm:"not null"`
-	IsDuplicate       bool            `gorm:"not null"`
+	PayloadHash       string
+	ReceivedAt        time.Time     `gorm:"not null"`
+	ProviderCreatedAt time.Time     `gorm:"not null"`
+	Status            ReceiptStatus `gorm:"not null"`
+	IsDuplicate       bool          `gorm:"not null"`
 }
 
 // WebhookVerifier verifies webhook requests and returns their normalized event data.
@@ -115,7 +115,7 @@ type WebhookReceiptRepository interface {
 type WebhookRejectionRepository interface {
 	LogRejection(
 		ctx context.Context,
-		receipt *WebhookReceipt,
+		rejection *WebhookRejection,
 	) error
 }
 
@@ -163,6 +163,7 @@ func NewWebhookReceipt(
 	correlationID uuid.UUID,
 ) WebhookReceipt {
 	epochConvertedTime := time.Unix(event.ProviderCreatedAt, 0)
+	fmt.Printf("DEBUGGING STATEMENT: Provider Epoch Time: %v | Converted Time: %v)\n", event.ProviderCreatedAt, epochConvertedTime)
 	return WebhookReceipt{
 		ID:                uuid.New(),
 		CorrelationID:     correlationID,

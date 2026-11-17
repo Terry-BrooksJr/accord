@@ -15,7 +15,7 @@ import (
 
 func NewStripeHandler(
 	repo signatures.WebhookReceiptRepository,
-	rejectionLog signatures.GORMWebhookRejectionRepository,
+	rejectionLog signatures.WebhookRejectionRepository,
 	verifier signatures.WebhookVerifier,
 	maxBodyBytes int64,
 	logger *slog.Logger,
@@ -23,7 +23,7 @@ func NewStripeHandler(
 	if repo == nil {
 		return nil, errors.New("repo cannot be of nil value")
 	}
-	if rejectionLog.DB == nil {
+	if rejectionLog == nil {
 		return nil, errors.New("rejection log cannot be of nil value")
 	}
 	if verifier == nil {
@@ -47,7 +47,7 @@ func NewStripeHandler(
 
 type StripeHandler struct {
 	Repo         signatures.WebhookReceiptRepository
-	RejectionLog signatures.GORMWebhookRejectionRepository
+	RejectionLog signatures.WebhookRejectionRepository
 	Verifier     signatures.WebhookVerifier
 	MaxBodyBytes int64
 	Logger       *slog.Logger
@@ -103,13 +103,14 @@ func (sh *StripeHandler) CatchWebhook(
 		var rejectionReason signatures.RejectionReasonType
 		var rejectionDetails string
 		if errors.Is(err, stripeprovider.ErrMissingStripeSignature) {
+			sh.Logger.WarnContext(ctx, fmt.Sprintf("warning: incomplete http request recieved: %s", err), "correlationID", incomingRequestCorrelationID)
 			rejectionReason = signatures.RejectionReasonTypeMissingSignature
 			rejectionDetails = "Incoming Request failed to provide Stripe Signature in HTTP Headers"
+		} else {
+			sh.Logger.WarnContext(ctx, fmt.Sprintf("warning: unverifiable http request recieved: %s", err), "correlationID", incomingRequestCorrelationID)
+			rejectionReason = signatures.RejectionReasonTypeInvaildSignature
+			rejectionDetails = "Incoming Request Cannot Be Verifed: Missing Stripe Signature"
 		}
-		sh.Logger.WarnContext(ctx, fmt.Sprintf("warning: unverifiable stripe webhook recieved: %s", err), "correlationID", incomingRequestCorrelationID)
-		rejectionReason = signatures.RejectionReasonTypeInvaildSignature
-		rejectionDetails = "Incoming Request Cannot Be Verifed and Deemed Invaild"
-
 		rejection, err := sh.Verifier.CaptureRejection(
 			body,
 			*r,

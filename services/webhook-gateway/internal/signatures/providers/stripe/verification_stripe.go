@@ -1,4 +1,4 @@
-package signatures
+package providers
 
 import (
 	"accord/services/webhook-gateway/internal/signatures"
@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+// ErrMissingStripeSignature is raised when an incoming HTTP Request's headers has a nil value in or  missing the `Stripe-Signature`.
+// This error is used in downstream conditional logic and modifies the rejection instatiatioin prior to persisting it in Rejection Log Repositiory.
 var ErrMissingStripeSignature = errors.New("missing stripe signature")
 
 // StripeVerifier verifies Stripe webhook signatures.
@@ -35,8 +37,8 @@ func (sv *StripeVerifier) Verify(
 ) (signatures.VerifiedEvent, error) {
 	signature := headers.Get("Stripe-Signature")
 
-	if signature == "" {
-		slog.ErrorContext(ctx, "stripe-signature no in header")
+	if signature == " " {
+		slog.ErrorContext(ctx, "stripe-signature not in headers")
 		return signatures.VerifiedEvent{}, ErrMissingStripeSignature
 	}
 	fmt.Print(signature) //TODO: Remove me LATER for testing ONLY
@@ -45,14 +47,15 @@ func (sv *StripeVerifier) Verify(
 		slog.Error("Unable to verify Stripe webhook", "err", err)
 		return signatures.VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
 	}
-	slog.Info("incoming request verifed")
+	slog.Info(fmt.Sprintf("incoming http request has been verified as Stripe event %v", eventData.ID))
 	event := signatures.VerifiedEvent{
-		CorrelationID:   uuid.New(),
-		Provider:        signatures.Stripe,
-		ProviderEventID: eventData.ID,
-		EventType:       string(eventData.Type),
-		ReceivedAt:      time.Now(),
-		RawPayload:      json.RawMessage(body),
+		CorrelationID:     uuid.New(),
+		Provider:          signatures.Stripe,
+		ProviderEventID:   eventData.ID,
+		EventType:         string(eventData.Type),
+		ReceivedAt:        time.Now(),
+		ProviderCreatedAt: eventData.Created,
+		RawPayload:        json.RawMessage(body),
 	}
 	return event, nil
 }

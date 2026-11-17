@@ -1,4 +1,4 @@
-package signatures
+package providers
 
 import (
 	"accord/services/webhook-gateway/internal/signatures"

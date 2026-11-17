@@ -5,9 +5,8 @@ from typing import Any
 from uuid import UUID
 
 import dotenv
-from sqlalchemy import Column, DateTime, Integer, LargeBinary, String
-from sqlalchemy.dialects.postgresql import INET, TEXT
-from sqlalchemy.types import JSON
+from sqlalchemy import Boolean, Column, DateTime, Integer, LargeBinary, String
+from sqlalchemy.dialects.postgresql import INET, JSONB, TEXT
 from sqlmodel import Field, SQLModel, create_engine
 
 dotenv.load_dotenv("/workspaces/accord/.env")
@@ -70,12 +69,12 @@ class WebhookReceipt(SQLModel, table=True):
     provider_event_id: str | None = Field(default=None, index=True)
     event_type: str = Field(
         sa_column=Column(
-            nullable=False,
+            String,
             index=True,
         )
     )
-    payload: dict[str, Any] = Field(sa_column=Column(JSON))
-    payload_hash: str = Field(sa_column=Column(nullable=False, unique=True))
+    payload: dict[str, Any] = Field(sa_column=Column(JSONB))
+    payload_hash: str = Field(sa_column=Column(String, nullable=False))
     received_at: datetime = Field(
         sa_column=Column(DateTime(timezone=True), nullable=False)
     )
@@ -83,7 +82,7 @@ class WebhookReceipt(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), nullable=False)
     )
     status: ReceiptStatus = Field(sa_column=Column(String, nullable=False))
-    is_duplicate: bool = Field(nullable=False, default=False)
+    is_duplicate: bool = Field(sa_column=Column(Boolean, default=False))
 
 
 class WebhookRejection(SQLModel, table=True):
@@ -97,7 +96,7 @@ class WebhookRejection(SQLModel, table=True):
     rejection_reason: str = Field(sa_column=Column(String, nullable=False))
     request_path: str
     request_headers: dict[str, list[str]] = Field(
-        sa_column=Column(JSON, nullable=False)
+        sa_column=Column(JSONB, nullable=False)
     )
     is_payload_truncated: bool
     captured_payload: bytes | None = Field(sa_column=Column(LargeBinary, default=None))
