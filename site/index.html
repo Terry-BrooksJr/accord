@@ -110,7 +110,7 @@ Personal project · In development
 </div>
 </div>
 </div>
-<figcaption style="padding: 12px 18px; border-top: 1px solid #E3E8EF; font-size: 13px; color: #425466; background: #F5F7FA">Every request becomes its own row, duplicates and rejections included, so the log is a true account of what arrived.</figcaption>
+<figcaption style="padding: 12px 18px; border-top: 1px solid #E3E8EF; font-size: 13px; color: #425466; background: #F5F7FA">Illustrative sample; persisting duplicate and rejected-delivery audit rows is planned.</figcaption>
 </figure>
 </div>
 </section>
@@ -159,7 +159,7 @@ Personal project · In development
 <span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Building now</span>
 </div>
 <h3 style="margin: 0; font-size: 18px; font-weight: 600">Webhook processing</h3>
-<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">A Go gateway that accepts, verifies and persists provider events, recording accepted, duplicate and rejected deliveries alike.</p>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">A Go gateway that accepts, verifies and persists provider events; duplicate and rejected-delivery audit rows are planned.</p>
 </article>
 
 <article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
@@ -168,7 +168,7 @@ Personal project · In development
 <span style="display: inline-flex; align-items: center; gap: 6px; color: #1A62C8; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"></path></svg>Building now</span>
 </div>
 <h3 style="margin: 0; font-size: 18px; font-weight: 600">Idempotency</h3>
-<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Retries are expected, not feared. The first delivery of an event is marked original; later copies are logged as duplicates and not processed twice.</p>
+<p style="margin: 0; font-size: 15px; color: #425466; line-height: 1.6">Retries are expected, not feared. Persisting duplicate copies as audit rows and ensuring events are processed only once are planned.</p>
 </article>
 
 <article style="border: 1px solid #E3E8EF; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF">
@@ -255,7 +255,7 @@ Personal project · In development
 <div style="flex: 1 1 200px; min-width: 0; border: 1px solid #14B8A6; border-radius: 12px; padding: 20px; background: #0C3343; display: flex; flex-direction: column; gap: 6px">
 <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5EEAD4">3 · Delivery log</span>
 <strong style="font-weight: 600; font-size: 17px">Records every request</strong>
-<span style="font-size: 14px; color: #C7D3E0">One Postgres row per delivery, flagged original, duplicate or rejected.</span>
+<span style="font-size: 14px; color: #C7D3E0">First deliveries are persisted today; separate duplicate and rejected-delivery audit rows are planned.</span>
 </div>
 <div aria-hidden="true" style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; color: #5EEAD4; padding: 0 2px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></div>
 <div style="flex: 1 1 200px; min-width: 0; border: 1px dashed #4A6A8A; border-radius: 12px; padding: 20px; background: transparent; display: flex; flex-direction: column; gap: 6px">
@@ -273,7 +273,7 @@ Personal project · In development
 </div>
 <div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
 <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Forged and malformed requests</h3>
-<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">Rejected requests are logged too, sanitized first, and kept out of deduplication so no one can pre-claim a real event ID.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #C7D3E0">Planned: sanitize rejected requests before logging them and keep them out of deduplication so no one can pre-claim a real event ID.</p>
 </div>
 <div style="background: #0A2540; padding: 28px; display: flex; flex-direction: column; gap: 10px">
 <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF">Out-of-order events</h3>
@@ -330,7 +330,7 @@ Personal project · In development
 <h3 style="margin: 0; font-size: 18px; font-weight: 600">Duplicates and rejections</h3>
 <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; background: #EEF1F5; color: #425466; font-size: 12px; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>Up next</span>
 </div>
-<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">Record retried deliveries as duplicates and rejected requests as sanitized rows, so the log accounts for every request received.</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #425466">Add duplicate-delivery audit rows and sanitized rejection records so the log can account for every request received.</p>
 </div>
 </li>
 
