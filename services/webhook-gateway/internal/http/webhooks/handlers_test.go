@@ -8,6 +8,7 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -32,6 +33,22 @@ func TestCatchWebhookRejectsGET(t *testing.T) {
 func TestCatchWebhookRejectsOversizedBody(t *testing.T) {
 	verifier := helpers.NewTestVerifier(t)
 	fixture := helpers.NewHandlerFixture(t, verifier, 8)
+
+	verifier.On(
+		"CaptureRejection",
+		[]byte("12345678"),
+		mock.Anything, // request
+		mock.Anything, // receivedAt
+		mock.Anything, // context
+		mock.Anything, // correlation ID
+		signatures.RejectionReasonTypePayloadTooLarge,
+		mock.Anything, // details
+	).Return(
+		signatures.WebhookRejection{
+			RejectionReason: signatures.RejectionReasonTypePayloadTooLarge,
+		},
+		nil,
+	).Once()
 
 	fixture.Rejections.On(
 		"LogRejection",
@@ -106,6 +123,22 @@ func TestCatchWebhookRejectsMissingSignature(t *testing.T) {
 		stripeprovider.ErrMissingStripeSignature,
 	).Once()
 
+	verifier.On(
+		"CaptureRejection",
+		body,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		signatures.RejectionReasonTypeMissingSignature,
+		mock.Anything,
+	).Return(
+		signatures.WebhookRejection{
+			RejectionReason: signatures.RejectionReasonTypeMissingSignature,
+		},
+		nil,
+	).Once()
+
 	fixture.Rejections.On(
 		"LogRejection",
 		mock.Anything,
@@ -133,6 +166,7 @@ func TestCatchWebhookReturns500WhenReceiptSaveFails(t *testing.T) {
 	verifier := &stripeprovider.StripeVerifier{
 		EndpointSecret: helpers.TestSigningSecret,
 	}
+
 	fixture := helpers.NewHandlerFixture(t, verifier, int64(len(body)))
 	fixture.Receipts.On(
 		"RecordEvent",
@@ -153,10 +187,37 @@ func TestCatchWebhookReturns500WhenReceiptSaveFails(t *testing.T) {
 
 }
 
-func TestCatchWebhookReturns401WhenRejectionSaveFails(t *testing.T) {
+type FailingReader struct{}
+
+func (f FailingReader) Read(input []byte) (int, error) {
+	return 0, errors.New("Intentional Read Failure")
+}
+
+func TestCatchWebhookReturns400WhenBodyReadFails(t *testing.T) {
+	verifier := helpers.NewTestVerifier(t)
+	fixture := helpers.NewHandlerFixture(t, verifier, 8)
+
+	request := httptest.NewRequest(
+		http.MethodPost,
+		helpers.TestStripeWebhookPath,
+		io.NopCloser(FailingReader{}),
+	)
+	response := httptest.NewRecorder()
+
+	fixture.Handler.CatchWebhook(response, request)
+
+	assert.Equal(t, http.StatusBadRequest, response.Code)
+	verifier.AssertNumberOfCalls(t, "Verify", 0)
+	verifier.AssertNumberOfCalls(t, "CaptureRejection", 0)
+	fixture.Receipts.AssertNumberOfCalls(t, "RecordEvent", 0)
+	fixture.Rejections.AssertNumberOfCalls(t, "LogRejection", 0)
+}
+
+func TestCatchWebhookHandlesRejectionCaptureFailure(t *testing.T) {
 	body := helpers.StripeEventFixture(t)
 	verifier := helpers.NewTestVerifier(t)
 	fixture := helpers.NewHandlerFixture(t, verifier, int64(len(body)))
+
 	verifier.On(
 		"Verify",
 		mock.Anything,
@@ -166,22 +227,26 @@ func TestCatchWebhookReturns401WhenRejectionSaveFails(t *testing.T) {
 		signatures.VerifiedEvent{},
 		stripeprovider.ErrMissingStripeSignature,
 	).Once()
+	verifier.On(
+		"CaptureRejection",
+		body,
+		mock.Anything, // request
+		mock.Anything, // receivedAt
+		mock.Anything, // context
+		mock.Anything, // correlation ID
+		signatures.RejectionReasonTypeMissingSignature,
+		mock.Anything, // details
+	).Return(
+		signatures.WebhookRejection{},
+		errors.New("intentional capture failure"),
+	).Once()
 
-	fixture.Rejections.On(
-		"LogRejection",
-		mock.Anything,
-		mock.MatchedBy(func(rejection *signatures.WebhookRejection) bool {
-			return rejection != nil &&
-				rejection.RejectionReason ==
-					signatures.RejectionReasonTypeMissingSignature
-		}),
-	).Return(errors.New("Non=specific Databaser Error")).Once()
-
-	request := helpers.NewSignedWebhookRequest(body)
+	request := helpers.NewWebhookRequest(body)
 	response := httptest.NewRecorder()
 
 	fixture.Handler.CatchWebhook(response, request)
 
 	assert.Equal(t, http.StatusUnauthorized, response.Code)
-
+	fixture.Receipts.AssertNumberOfCalls(t, "RecordEvent", 0)
+	fixture.Rejections.AssertNumberOfCalls(t, "LogRejection", 0)
 }

@@ -5,10 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"log/slog"
 	"net/http"
 	"os"
@@ -136,21 +133,4 @@ func NewWebhookRejection(r http.Request,
 	}
 	return new_rejection
 
-}
-func (r *GORMWebhookRejectionRepository) LogRejection(
-	ctx context.Context,
-	rejection *WebhookRejection,
-) error {
-	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		result := tx.Create(&rejection)
-		if result.Error != nil {
-			slog.Warn("unable to insert row into rejection log", "error", result.Error, "rejection_data", rejection)
-			return result.Error
-		}
-		if result.RowsAffected == 1 {
-			slog.Info(fmt.Sprintf("rejection %v succcessfully logged ", rejection.ID))
-			return nil
-		}
-		return errors.New("Unable to Log Rejection. ")
-	})
 }

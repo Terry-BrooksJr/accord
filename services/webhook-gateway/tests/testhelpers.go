@@ -84,16 +84,10 @@ func (m *HandlerTestVerifier) CaptureRejection(
 	details string,
 ) (signatures.WebhookRejection, error) {
 	m.CapturedReasons = append(m.CapturedReasons, reason)
-
-	return signatures.WebhookRejection{
-		ID:               uuid.New(),
-		CorrelationID:    correlationID,
-		Provider:         signatures.Stripe,
-		ReceivedAt:       receivedAt,
-		RejectionReason:  reason,
-		RequestPath:      request.URL.Path,
-		RejectionDetails: &details,
-	}, nil
+	args := m.Called(body,
+		request, receivedAt, ctx,
+		correlationID, reason, details)
+	return args.Get(0).(signatures.WebhookRejection), args.Error(1)
 }
 
 type MockReceiptRepository struct {
