@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 vars:
   GATEWAY_DIR: services/webhook-gateway
@@ -7,6 +7,12 @@ vars:
   CORE_DIR: packages/python/accord-core
   ADAPTERS_DIR: packages/python/accord-integrations
   ETL_DIR: etl
+  PYTHON_DIRS:
+    - "{{.API_DIR}}"
+    - "{{.WORKER_DIR}}"
+    - "{{.ADAPTERS_DIR}}"
+    - "{{.CORE_DIR}}"
+    - "{{.ETL_DIR}}"
 
 tasks:
   default:
@@ -14,6 +20,30 @@ tasks:
     cmds:
       - task --list
 
+  # Database Operations
+  db:_migrations:
+    interactive: true
+    desc: Generate an Alembic migration from schema changes
+    internal: true
+    env:
+      MIGRATION_MESSAGE: "{{.MIGRATION_MESSAGE}}"
+    cmds:
+      - .venv/bin/alembic -c database/postgresql/alembic.ini revision --autogenerate -m "$MIGRATION_MESSAGE"
+    generates:
+      - "database/postgresql/alembic/versions/????_??_??_????-????????????_*.py"
+
+  db:migrate:
+    desc: Generate and apply an Alembic migration
+    interactive: true
+    requires:
+      vars: [MIGRATION_NOTE]
+    cmds:
+      - task: db:_migrations
+        vars:
+          MIGRATION_MESSAGE: "{{.MIGRATION_NOTE}}"
+      - .venv/bin/alembic -c database/postgresql/alembic.ini upgrade head
+    status:
+      - .venv/bin/alembic -c database/postgresql/alembic.ini check
   # Local infrastructure
 
   infra:validate:
@@ -55,36 +85,36 @@ tasks:
     desc: Install dependencies for all Python projects
     cmds:
       - for:
-          - '{{.API_DIR}}'
-          - '{{.WORKER_DIR}}'
-          - '{{.CORE_DIR}}'
-          - '{{.ADAPTERS_DIR}}'
-          - '{{.ETL_DIR}}'
-        cmd: uv sync --project "{{.ITEM}}"
+          - "{{.API_DIR}}"
+          - "{{.WORKER_DIR}}"
+          - "{{.CORE_DIR}}"
+          - "{{.ADAPTERS_DIR}}"
+          - "{{.ETL_DIR}}"
+        cmd: uv sync
 
   # Run applications locally
 
   gateway:run:
     desc: Run the Go webhook gateway
-    dir: '{{.GATEWAY_DIR}}'
+    dir: "{{.GATEWAY_DIR}}"
     cmds:
       - go run ./cmd/gateway {{.CLI_ARGS}}
 
   api:run:
     desc: Run the integration API with automatic reload
-    dir: '{{.API_DIR}}'
+    dir: "{{.API_DIR}}"
     cmds:
       - uv run uvicorn accord_api.main:app --reload --host 127.0.0.1 --port 8000 {{.CLI_ARGS}}
 
   worker:run:
     desc: Run the integration worker
-    dir: '{{.WORKER_DIR}}'
+    dir: "{{.WORKER_DIR}}"
     cmds:
       - uv run python -m accord_worker.main {{.CLI_ARGS}}
 
   etl:run:
     desc: Run the PostgreSQL-to-ClickHouse ETL
-    dir: '{{.ETL_DIR}}'
+    dir: "{{.ETL_DIR}}"
     cmds:
       - uv run python -m accord_etl.main {{.CLI_ARGS}}
 
@@ -98,20 +128,15 @@ tasks:
 
   go:fmt:
     desc: Format the webhook gateway
-    dir: '{{.GATEWAY_DIR}}'
+    dir: "{{.GATEWAY_DIR}}"
     cmds:
       - go fmt ./...
 
   python:fmt:
     desc: Format all Python projects with Ruff
     cmds:
-      - for:
-          - '{{.API_DIR}}'
-          - '{{.WORKER_DIR}}'
-          - '{{.CORE_DIR}}'
-          - '{{.ADAPTERS_DIR}}'
-          - '{{.ETL_DIR}}'
-        cmd: uv run --project "{{.ITEM}}" ruff format "{{.ITEM}}"
+      - for: { var: PYTHON_DIRS }
+        cmd: uv run ruff format '{{.ITEM}}'
 
   # Static checks
 
@@ -123,7 +148,7 @@ tasks:
 
   go:lint:
     desc: Check Go formatting and run go vet
-    dir: '{{.GATEWAY_DIR}}'
+    dir: "{{.GATEWAY_DIR}}"
     cmds:
       - |
         unformatted="$(gofmt -l .)"
@@ -136,15 +161,10 @@ tasks:
   python:lint:
     desc: Check Python lint rules and formatting
     cmds:
-      - for:
-          - '{{.API_DIR}}'
-          - '{{.WORKER_DIR}}'
-          - '{{.CORE_DIR}}'
-          - '{{.ADAPTERS_DIR}}'
-          - '{{.ETL_DIR}}'
+      - for: { var: PYTHON_DIRS }
         cmd: >-
-          uv run --project "{{.ITEM}}" ruff check "{{.ITEM}}"
-          && uv run --project "{{.ITEM}}" ruff format --check "{{.ITEM}}"
+          uv run ruff check "{{.ITEM}}"
+          && uv run  ruff format --check "{{.ITEM}}"
 
   # Tests
 
@@ -156,30 +176,25 @@ tasks:
 
   go:test:
     desc: Run webhook gateway tests with race detection
-    dir: '{{.GATEWAY_DIR}}'
+    dir: "{{.GATEWAY_DIR}}"
     cmds:
       - go test -race ./... {{.CLI_ARGS}}
 
   python:test:
     desc: Run unit tests for every Python project
     cmds:
-      - for:
-          - '{{.API_DIR}}'
-          - '{{.WORKER_DIR}}'
-          - '{{.CORE_DIR}}'
-          - '{{.ADAPTERS_DIR}}'
-          - '{{.ETL_DIR}}'
-        cmd: uv run --project "{{.ITEM}}" pytest "{{.ITEM}}/tests"
+      - for: { var: PYTHON_DIRS }
+        cmd: uv run pytest "{{.ITEM}}/tests"
 
   test:integration:
     desc: Run integration tests against running local infrastructure
     cmds:
-      - uv run --project "{{.API_DIR}}" pytest tests/integration {{.CLI_ARGS}}
+      - uv run pytest tests/integration {{.CLI_ARGS}}
 
   test:e2e:
     desc: Run end-to-end tests against the running application
     cmds:
-      - uv run --project "{{.API_DIR}}" pytest tests/end-to-end {{.CLI_ARGS}}
+      - uv run pytest tests/end-to-end {{.CLI_ARGS}}
 
   check:
     desc: Run lint and unit tests

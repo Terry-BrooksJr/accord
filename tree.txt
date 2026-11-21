@@ -1,0 +1,171 @@
+.
+├── -
+├── ARCHITECTURE.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── DEPLOYMENT.md
+├── DEVELOPMENT.md
+├── LICENSE
+├── OPERATIONS.md
+├── README.md
+├── SECURITY.md
+├── Taskfile.yaml
+├── __init__.py
+├── compose.override.yaml
+├── compose.yaml
+├── database
+│   ├── __init__.py
+│   ├── clickhouse
+│   │   ├── README.md
+│   │   └── migrations
+│   │       └── 0001_initial.sql
+│   └── postgresql
+│       ├── README.md
+│       ├── __init__.py
+│       ├── alembic
+│       │   ├── README
+│       │   ├── env.py
+│       │   └── script.py.mako
+│       ├── alembic.ini
+│       ├── schemas
+│       │   ├── __init__.py
+│       │   └── models.py
+│       ├── seeds
+│       │   └── local.sql
+│       └── tree.txt
+├── docs
+│   ├── adr
+│   │   ├── 0001-go-webhook-ingestion.md
+│   │   ├── 0002-postgresql-source-of-truth.md
+│   │   ├── 0003-clickhouse-analytics.md
+│   │   ├── 0004-transactional-outbox.md
+│   │   ├── 0005-idempotency-strategy.md
+│   │   ├── 0006-reconciliation-strategy.md
+│   │   ├── 0007-deferred-message-broker.md
+│   │   ├── 0008-keycloak-authentication.md
+│   │   └── README.md
+│   ├── api
+│   │   └── README.md
+│   ├── integrations
+│   │   ├── README.md
+│   │   ├── plaid.md
+│   │   ├── shippo.md
+│   │   ├── stripe.md
+│   │   └── support.md
+│   └── runbooks
+│       ├── etl-recovery.md
+│       ├── event-replay.md
+│       ├── provider-outage.md
+│       ├── reconciliation.md
+│       └── retry-operations.md
+├── etl
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── pyproject.toml
+│   ├── src
+│   │   └── accord_etl
+│   │       ├── __init__.py
+│   │       └── main.py
+│   └── uv.lock
+├── fixtures
+│   ├── README.md
+│   ├── keycloak
+│   │   └── sample.json
+│   ├── mock_support
+│   │   └── sample.json
+│   ├── plaid
+│   │   └── sample.json
+│   ├── shippo
+│   │   └── sample.json
+│   ├── stripe
+│   │   └── sample.json
+│   └── zendesk
+│       └── sample.json
+├── go.work.sum
+├── infrastructure
+│   ├── clickhouse
+│   │   ├── config.xml
+│   │   └── users.xml
+│   ├── docker
+│   │   └── README.md
+│   ├── grafana
+│   │   └── dashboards
+│   │       └── integration-overview.json
+│   ├── keycloak
+│   │   └── realms
+│   │       └── accord-realm.json
+│   ├── loki
+│   │   └── loki.yaml
+│   ├── postgresql
+│   │   └── postgresql.conf
+│   ├── prometheus
+│   │   ├── prometheus.yaml
+│   │   └── rules
+│   │       └── alerts.yaml
+│   └── traefik
+│       ├── dynamic
+│       │   └── routes.yaml
+│       └── traefik.yaml
+├── packages
+│   └── python
+│       ├── accord-core
+│       │   ├── README.md
+│       │   ├── pyproject.toml
+│       │   └── uv.lock
+│       └── accord-integrations
+│           ├── README.md
+│           ├── pyproject.toml
+│           └── uv.lock
+├── pyproject.toml
+├── scenarios
+│   ├── README.md
+│   ├── definitions
+│   │   ├── duplicate-webhook.yaml
+│   │   ├── happy-path.yaml
+│   │   ├── payment-failure.yaml
+│   │   ├── payout-mismatch.yaml
+│   │   ├── provider-timeout.yaml
+│   │   ├── reconciliation-failure.yaml
+│   │   ├── reconciliation-success.yaml
+│   │   ├── refund-after-shipping.yaml
+│   │   └── shipping-failure.yaml
+│   ├── expected
+│   │   ├── duplicate-webhook.json
+│   │   ├── happy-path.json
+│   │   ├── payment-failure.json
+│   │   ├── payout-mismatch.json
+│   │   ├── provider-timeout.json
+│   │   ├── reconciliation-failure.json
+│   │   ├── reconciliation-success.json
+│   │   ├── refund-after-shipping.json
+│   │   └── shipping-failure.json
+│   └── runner
+│       ├── __init__.py
+│       └── main.py
+├── services
+│   ├── __init__.py
+│   ├── accord
+│   │   └── __init__.py
+│   ├── integration-api
+│   │   ├── Dockerfile
+│   │   └── api
+│   │       ├── __init__.py
+│   │       └── main.py
+│   ├── integration-worker
+│   │   ├── Dockerfile
+│   │   └── worker
+│   │       ├── __init__.py
+│   │       └── main.py
+│   └── webhook-gateway
+│       ├── Dockerfile
+│       ├── go.mod
+│       └── go.sum
+├── tests
+│   ├── end-to-end
+│   │   └── README.md
+│   └── integration
+│       └── README.md
+├── tree.txt
+└── uv.lock
+
+54 directories, 115 files
