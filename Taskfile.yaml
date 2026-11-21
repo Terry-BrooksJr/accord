@@ -98,7 +98,7 @@ tasks:
     desc: Run the Go webhook gateway
     dir: "{{.GATEWAY_DIR}}"
     cmds:
-      - go run ./cmd/gateway {{.CLI_ARGS}}
+      - go run ./cmd/gateway {{.CLI_ARGS}} 2>&1 | jq -RrC --unbuffered '. as $line | try fromjson catch $line'
 
   api:run:
     desc: Run the integration API with automatic reload

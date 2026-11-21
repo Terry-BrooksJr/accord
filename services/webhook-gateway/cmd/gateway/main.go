@@ -44,6 +44,13 @@ func main() {
 		logger.Error(fmt.Sprintf("unable to establish database connection: %v", err))
 		os.Exit(1)
 	}
+
+	// Add "log/slog" and "os" to your imports.
+appLogger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+    Level: slog.LevelInfo,
+}))
+slog.SetDefault(appLogger)
+
 	GatewayMux := http.NewServeMux()
 	stripeHandler, err := webhooks.NewStripeHandler(
 		RecieptDBConnection,

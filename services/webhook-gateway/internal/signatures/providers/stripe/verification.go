@@ -45,9 +45,9 @@ func (sv *StripeVerifier) Verify(
 	eventData, err := webhook.ConstructEventWithOptions(body, signature, sv.EndpointSecret, webhook.ConstructEventOptions{IgnoreAPIVersionMismatch: true})
 	if err != nil {
 		slog.Error("Unable to verify Stripe webhook", "err", err)
-		return signatures.VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w", err)
+		return signatures.VerifiedEvent{}, fmt.Errorf("unable to construct Stripe event during signature verification: %w\n", err)
 	}
-	slog.Info(fmt.Sprintf("incoming http request has been verified as Stripe event %v", eventData.ID))
+	slog.Info(fmt.Sprintf("incoming http request has been verified as Stripe event %v\n", eventData.ID))
 	event := signatures.VerifiedEvent{
 		CorrelationID:     uuid.New(),
 		Provider:          signatures.Stripe,
