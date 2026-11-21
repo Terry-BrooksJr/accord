@@ -46,10 +46,10 @@ func main() {
 	}
 
 	// Add "log/slog" and "os" to your imports.
-appLogger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-    Level: slog.LevelInfo,
-}))
-slog.SetDefault(appLogger)
+	appLogger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+	slog.SetDefault(appLogger)
 
 	GatewayMux := http.NewServeMux()
 	stripeHandler, err := webhooks.NewStripeHandler(

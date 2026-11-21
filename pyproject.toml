@@ -39,6 +39,7 @@ exclude = [
 [dependency-groups]
 dev = [
     "isort>=9.0.2",
+    "ruff>=0.17.6",
 ]
 
 [tool.ruff.lint]

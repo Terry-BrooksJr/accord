@@ -8,27 +8,27 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"log/slog"
-	"log"
 	"gorm.io/gorm/logger"
+	"log"
+	"log/slog"
 	"os"
 	"time"
 )
 
 func NewRepository(dsn string) (*GORMWebhookReceiptRepository, error) {
-db, err := gorm.Open(
-    postgres.Open(dsn),
-    &gorm.Config{
-        Logger: logger.New(
-            log.New(os.Stderr, "", log.LstdFlags),
-            logger.Config{
-                LogLevel:                  logger.Warn,
-                SlowThreshold:             200 * time.Millisecond,
-                IgnoreRecordNotFoundError: true,
-            },
-        ),
-    },
-)
+	db, err := gorm.Open(
+		postgres.Open(dsn),
+		&gorm.Config{
+			Logger: logger.New(
+				log.New(os.Stderr, "", log.LstdFlags),
+				logger.Config{
+					LogLevel:                  logger.Warn,
+					SlowThreshold:             200 * time.Millisecond,
+					IgnoreRecordNotFoundError: true,
+				},
+			),
+		},
+	)
 	if err != nil {
 		return nil, fmt.Errorf("unable to establish connection to DB: %w", err)
 	}
@@ -36,19 +36,19 @@ db, err := gorm.Open(
 }
 
 func NewRejectionLog(dsn string) (*GORMWebhookRejectionRepository, error) {
-db, err := gorm.Open(
-    postgres.Open(dsn),
-    &gorm.Config{
-        Logger: logger.New(
-            log.New(os.Stderr, "", log.LstdFlags),
-            logger.Config{
-                LogLevel:                  logger.Warn,
-                SlowThreshold:             200 * time.Millisecond,
-                IgnoreRecordNotFoundError: true,
-            },
-        ),
-    },
-)
+	db, err := gorm.Open(
+		postgres.Open(dsn),
+		&gorm.Config{
+			Logger: logger.New(
+				log.New(os.Stderr, "", log.LstdFlags),
+				logger.Config{
+					LogLevel:                  logger.Warn,
+					SlowThreshold:             200 * time.Millisecond,
+					IgnoreRecordNotFoundError: true,
+				},
+			),
+		},
+	)
 	if err != nil {
 		return nil, fmt.Errorf("unable to establish connection to DB: %w", err)
 	}
@@ -88,12 +88,13 @@ func (r *GORMWebhookReceiptRepository) RecordEvent(
 		}
 		if err := tx.Create(receipt).Error; err != nil {
 			return err
+		} else {
+			slog.InfoContext(ctx, "distinct webhook receipt recorded",
+				"provider", receipt.Provider,
+				"provider_event_id", receipt.ProviderEventID,
+				"correlation_id", receipt.CorrelationID,
+			)
 		}
-		slog.InfoContext(ctx, "distinct webhook receipt recorded",
-    "provider", receipt.Provider,
-    "provider_event_id", receipt.ID,
-    "correlation_id", receipt.CorrelationID,
-)
 		return nil
 	})
 }
@@ -107,15 +108,17 @@ func (r *GORMWebhookRejectionRepository) LogRejection(
 		if result.Error != nil {
 			slog.Warn("unable to insert row into rejection log", "error", result.Error, "rejection_data", rejection)
 			return result.Error
+		} else {
+			if result.RowsAffected == 1 {
+				slog.InfoContext(ctx, "logged rejected http request",
+					"provider", rejection.Provider,
+					"correlation_id", rejection.CorrelationID,
+				)
+				return nil
+
+			}
 		}
-		if result.RowsAffected == 1 {
-			slog.InfoContext(ctx, "webhook receipt recorded",
-    "provider", rejection.Provider,
-    "provider_event_id", rejection.ID,
-    "correlation_id", rejection.CorrelationID,
-)
-			return nil
-		}
+
 		return errors.New("Unable to Log Rejection. ")
 	})
 }
