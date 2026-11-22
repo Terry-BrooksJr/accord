@@ -1,16 +1,18 @@
 package webhooks
 
 import (
+	"accord/services/webhook-gateway/internal/journal"
 	"accord/services/webhook-gateway/internal/signatures"
 	stripeprovider "accord/services/webhook-gateway/internal/signatures/providers/stripe"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func NewStripeHandler(
@@ -88,6 +90,11 @@ func (sh *StripeHandler) CatchWebhook(
 			rejectionLoggingIssue := sh.RejectionLog.LogRejection(ctx, &rejection)
 			if rejectionLoggingIssue != nil {
 				sh.Logger.ErrorContext(ctx, "unable to log rejection", "error", rejectionLoggingIssue)
+				if errors.Is(rejectionLoggingIssue, journal.ErrPostGresUnavailable) {
+					http.Error(w, "Service temporarily unavailable",
+						http.StatusServiceUnavailable)
+					return
+				}
 
 			}
 			http.Error(w, "Request body too large", http.StatusRequestEntityTooLarge)
@@ -122,14 +129,20 @@ func (sh *StripeHandler) CatchWebhook(
 			rejectionDetails,
 		)
 		if err != nil {
-			sh.Logger.ErrorContext(ctx, "unable to capture rejection", "error", err)
+			sh.Logger.ErrorContext(ctx, "unable to capture rejection", "error", err, "correlation_id", incomingRequestCorrelationID)
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 
 		}
 		rejectionLoggingIssue := sh.RejectionLog.LogRejection(ctx, &rejection)
 		if rejectionLoggingIssue != nil {
-			sh.Logger.ErrorContext(ctx, "unable to log rejection", "error", rejectionLoggingIssue)
+			sh.Logger.ErrorContext(ctx, "unable to log rejection", "error", rejectionLoggingIssue, "correlation_id", incomingRequestCorrelationID)
+			if errors.Is(rejectionLoggingIssue, journal.ErrPostGresUnavailable) {
+				http.Error(w, "Service temporarily unavailable",
+					http.StatusServiceUnavailable)
+				return
+			}
+
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 
@@ -141,6 +154,12 @@ func (sh *StripeHandler) CatchWebhook(
 	err = sh.Repo.RecordEvent(ctx, &receipt)
 	if err != nil {
 		sh.Logger.ErrorContext(ctx, fmt.Sprintf("db_write_Unable to record an event to databae: %s", err), "correlationID", incomingRequestCorrelationID)
+		if errors.Is(err, journal.ErrPostGresUnavailable) {
+			http.Error(w, "Service temporarily unavailable",
+				http.StatusServiceUnavailable)
+			return
+		}
+
 		http.Error(w, "unable catalog event", http.StatusInternalServerError)
 		return
 

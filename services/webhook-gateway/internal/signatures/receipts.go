@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
@@ -59,7 +58,6 @@ func NewWebhookReceipt(
 	correlationID uuid.UUID,
 ) WebhookReceipt {
 	epochConvertedTime := time.Unix(event.ProviderCreatedAt, 0)
-	fmt.Printf("DEBUGGING STATEMENT: Provider Epoch Time: %v | Converted Time: %v)\n", event.ProviderCreatedAt, epochConvertedTime)
 	return WebhookReceipt{
 		ID:                uuid.New(),
 		CorrelationID:     correlationID,

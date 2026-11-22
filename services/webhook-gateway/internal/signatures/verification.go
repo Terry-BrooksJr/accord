@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/google/uuid"
+	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -33,6 +35,11 @@ const (
 	// Other identifies a provider not represented by a named Provider constant.
 	Other
 )
+
+//go:generate stringer -type=Provider -trimprefix=Provider
+func (p Provider) LogValue() slog.Value {
+	return slog.StringValue(strings.ToLower(p.String()))
+}
 
 const (
 	// ReceiptStatusAccepted indicates that the webhook was accepted.
